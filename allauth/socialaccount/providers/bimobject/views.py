@@ -34,6 +34,8 @@ class BIMobjectOAuth2Adapter(OAuth2Adapter):
         settings = self.get_provider().get_settings()
         if settings.get('MODE') == 'live':
             return 'accounts.bimobject.com'
+        elif settings.get('MODE') == 'staging':
+            return 'accounts-staging.ad.bimobject.com'
         else:
             return 'accounts-portaldev.ad.bimobject.com'
 
