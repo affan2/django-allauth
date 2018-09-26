@@ -40,7 +40,7 @@ class BIMobjectOAuth2Adapter(OAuth2Adapter):
             return 'http://accounts-portaldev.ad.bimobject.com'
 
     def complete_login(self, request, app, token, **kwargs):
-        headers = {'Authorization': 'Bearer ' + token}
+        headers = {'Authorization': 'Bearer ' + token.token}
         response = requests.get(
             self.profile_url,
             params={'schema': 'openid'},
