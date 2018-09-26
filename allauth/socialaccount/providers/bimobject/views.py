@@ -13,31 +13,31 @@ class BIMobjectOAuth2Adapter(OAuth2Adapter):
     @property
     def authorize_url(self):
         path = 'identity/connect/authorize'
-        return 'https://{0}/{1}'.format(self._get_endpoint(), path)
+        return '{0}/{1}'.format(self._get_endpoint(), path)
 
     @property
     def access_token_url(self):
         path = "identity/connect/token"
-        return 'https://{0}/{1}'.format(self._get_endpoint(), path)
+        return '{0}/{1}'.format(self._get_endpoint(), path)
 
     @property
     def profile_url(self):
         path = 'identity/connect/userinfo'
-        return 'https://{0}/{1}'.format(self._get_endpoint(), path)
+        return '{0}/{1}'.format(self._get_endpoint(), path)
 
     @property
     def logout_url(self):
         path = 'identity/connect/endsession'
-        return 'https://{0}/{1}'.format(self._get_endpoint(), path)
+        return '{0}/{1}'.format(self._get_endpoint(), path)
 
     def _get_endpoint(self):
         settings = self.get_provider().get_settings()
         if settings.get('MODE') == 'live':
-            return 'accounts.bimobject.com'
+            return 'https://accounts.bimobject.com'
         elif settings.get('MODE') == 'staging':
-            return 'accounts-staging.ad.bimobject.com'
+            return 'http://accounts-staging.ad.bimobject.com'
         else:
-            return 'accounts-portaldev.ad.bimobject.com'
+            return 'http://accounts-portaldev.ad.bimobject.com'
 
     def complete_login(self, request, app, token, **kwargs):
         response = requests.post(self.profile_url,
