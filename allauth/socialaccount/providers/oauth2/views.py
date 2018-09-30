@@ -107,6 +107,9 @@ class OAuth2CallbackView(OAuth2View):
                 error=error)
         app = self.adapter.get_provider().get_app(self.request)
         client = self.get_client(request, app)
+
+        request.session['last_sociallogin'] = self.adapter.provider_id
+
         try:
             access_token = client.get_access_token(request.GET['code'])
             token = self.adapter.parse_token(access_token)

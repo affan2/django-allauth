@@ -5,7 +5,6 @@ from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout as auth_logout
 from django.shortcuts import redirect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.utils.decorators import method_decorator
