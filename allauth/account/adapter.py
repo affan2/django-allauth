@@ -295,6 +295,10 @@ class DefaultAccountAdapter(object):
                 = "allauth.account.auth_backends.AuthenticationBackend"
         login(request, user)
 
+    def logout(self, request):
+        from django.contrib.auth import logout
+        logout(request)
+
     def confirm_email(self, request, email_address):
         """
         Marks the email address as confirmed on the db
@@ -318,5 +322,5 @@ class DefaultAccountAdapter(object):
         return is_safe_url(url)
 
 
-def get_adapter():
-    return import_attribute(app_settings.ADAPTER)()
+def get_adapter(request=None):
+    return import_attribute(app_settings.ADAPTER)(request)

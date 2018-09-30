@@ -51,4 +51,5 @@ class BIMobjectOAuth2Adapter(OAuth2Adapter):
 
 
 oauth2_login = OAuth2LoginView.adapter_view(BIMobjectOAuth2Adapter)
+oauth2_logout = OAuth2LogoutView.adapter_view(BIMobjectOAuth2Adapter)
 oauth2_callback = OAuth2CallbackView.adapter_view(BIMobjectOAuth2Adapter)

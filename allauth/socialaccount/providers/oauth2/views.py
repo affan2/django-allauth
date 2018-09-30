@@ -7,15 +7,16 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 
-from allauth.utils import build_absolute_uri
+from allauth.utils import build_absolute_uri, get_request_param
 from allauth.account import app_settings
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import get_next_redirect_url
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount import providers
 from allauth.socialaccount.providers.oauth2.client import (OAuth2Client,
                                                            OAuth2Error)
 from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialToken, SocialLogin
-from allauth.utils import get_request_param
 from ..base import AuthAction, AuthError
 
 
@@ -128,3 +129,30 @@ class OAuth2CallbackView(OAuth2View):
                 request,
                 self.adapter.provider_id,
                 exception=e)
+
+
+class OAuth2LogoutView(OAuth2View):
+    def dispatch(self, request, next_page=None):
+        """
+        Redirects to the social logout page.
+        next_page is used to let the server send back the user. If empty,
+        the redirect url is built on request data.
+        """
+        redirect_url = next_page or self.get_redirect_url()
+        redirect_to = request.build_absolute_uri(redirect_url)
+
+        client = self.get_client(request)
+
+        return HttpResponseRedirect(client.get_logout_url(redirect_to))
+
+    def get_redirect_url(self):
+        """
+        Returns the url to redirect after logout.
+        """
+        request = self.request
+        return (
+            get_next_redirect_url(request) or
+            get_adapter(request).get_logout_redirect_url(request)
+        )
+
+

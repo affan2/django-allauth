@@ -43,4 +43,5 @@ class BIMobjectProvider(OAuth2Provider):
             locale=data.get('locale'),
         )
 
+
 providers.registry.register(BIMobjectProvider)

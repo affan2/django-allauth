@@ -37,3 +37,9 @@ class OAuth2Provider(Provider):
 
     def get_default_scope(self):
         return []
+
+    def get_logout_url(self, request, **kwargs):
+        url = reverse(self.id + '_logout')
+        if kwargs:
+            url += '?' + urlencode(kwargs)
+        return url

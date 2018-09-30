@@ -16,6 +16,7 @@ class AuthProcess(object):
 class AuthAction(object):
     AUTHENTICATE = 'authenticate'
     REAUTHENTICATE = 'reauthenticate'
+    DEAUTHENTICATE = 'deauthenticate'
 
 
 class AuthError(object):
