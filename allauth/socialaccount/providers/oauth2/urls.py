@@ -1,12 +1,12 @@
-from django.conf.urls import patterns, url, include
-from django.utils.module_loading import import_string
+from django.conf.urls import url, include
+from allauth.utils import import_attribute
 
 
 def default_urlpatterns(provider):
-    package = provider.get_package()
-
-    login_view = import_string(package + '.views.oauth2_login')
-    callback_view = import_string(package + '.views.oauth2_callback')
+    login_view = import_attribute(
+        provider.get_package() + '.views.oauth2_login')
+    callback_view = import_attribute(
+        provider.get_package() + '.views.oauth2_callback')
 
     urlpatterns = [
         url('^login/$', login_view,
@@ -16,8 +16,9 @@ def default_urlpatterns(provider):
     ]
 
     try:
-        logout_view = import_string(provider.package + '.views.oauth2_logout')
-    except ImportError:
+        logout_view = import_attribute(
+            provider.get_package() + '.views.oauth2_logout')
+    except (ImportError, AttributeError):
         logout_view = None
 
     if logout_view is not None:
@@ -26,4 +27,4 @@ def default_urlpatterns(provider):
                 name=provider.id + '_logout'),
         ]
 
-    return [url('^' + provider.get_slug() + '/', include(urlpatterns))]
+    return [url('^' + provider.id + '/', include(urlpatterns))]
