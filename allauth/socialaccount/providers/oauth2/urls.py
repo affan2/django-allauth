@@ -3,11 +3,17 @@ from django.utils.module_loading import import_string
 
 
 def default_urlpatterns(provider):
-    urlpatterns = patterns(provider.package + '.views',
-                           url('^login/$', 'oauth2_login',
-                               name=provider.id + "_login"),
-                           url('^login/callback/$', 'oauth2_callback',
-                               name=provider.id + "_callback"))
+    package = provider.get_package()
+
+    login_view = import_string(package + '.views.oauth2_login')
+    callback_view = import_string(package + '.views.oauth2_callback')
+
+    urlpatterns = [
+        url('^login/$', login_view,
+            name=provider.id + '_login'),
+        url('^login/callback/$', callback_view,
+            name=provider.id + '_callback'),
+    ]
 
     try:
         logout_view = import_string(provider.package + '.views.oauth2_logout')
@@ -20,4 +26,4 @@ def default_urlpatterns(provider):
                 name=provider.id + '_logout'),
         ]
 
-    return patterns('', url('^' + provider.id + '/', include(urlpatterns)))
+    return [url('^' + provider.get_slug() + '/', include(urlpatterns))]
