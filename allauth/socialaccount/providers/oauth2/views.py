@@ -144,7 +144,8 @@ class OAuth2LogoutView(OAuth2View):
         redirect_url = next_page or self.get_redirect_url()
         redirect_to = request.build_absolute_uri(redirect_url)
 
-        client = self.get_client(request)
+        app = self.adapter.get_provider().get_app(self.request)
+        client = self.get_client(request, app)
 
         return HttpResponseRedirect(client.get_logout_url(redirect_to))
 
