@@ -79,6 +79,6 @@ class OAuth2Client(object):
         for key in keys:
             del params[key]
 
-    def get_logout_url(self, request, **kwargs):
-        url = self.logout_url
+    def get_logout_url(self, redirect_url=None):
+        url = redirect_url
         return url
