@@ -33,7 +33,7 @@ def _process_signup(request, sociallogin):
         if account_settings.USER_MODEL_USERNAME_FIELD:
             username = user_username(sociallogin.user)
             try:
-                get_account_adapter().clean_username(username)
+                get_account_adapter(request).clean_username(username)
             except ValidationError:
                 # This username is no good ...
                 user_username(sociallogin.user, '')
@@ -152,7 +152,7 @@ def _social_login_redirect(request, sociallogin):
 
 def _complete_social_login(request, sociallogin):
     if request.user.is_authenticated():
-        logout(request)
+        get_account_adapter(request).logout(request)
     if sociallogin.is_existing:
         # Login existing user
         ret = _login_social_account(request, sociallogin)
