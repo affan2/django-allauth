@@ -146,8 +146,8 @@ class OAuth2LogoutView(OAuth2View):
         next_page is used to let the server send back the user. If empty,
         the redirect url is built on request data.
         """
-        # if request.method != "POST":
-        #     return HttpResponseRedirect("/")
+        if request.method != "POST":
+            return HttpResponseRedirect("/")
 
         redirect_url = next_page or self.get_redirect_url()
         redirect_to = request.build_absolute_uri(redirect_url)
