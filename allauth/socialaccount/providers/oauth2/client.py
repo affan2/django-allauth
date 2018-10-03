@@ -16,13 +16,11 @@ class OAuth2Client(object):
                  access_token_method,
                  access_token_url,
                  callback_url,
-                 logout_url,
                  scope):
         self.request = request
         self.access_token_method = access_token_method
         self.access_token_url = access_token_url
         self.callback_url = callback_url
-        self.logout_url = logout_url
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = ' '.join(scope)

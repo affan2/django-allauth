@@ -58,14 +58,10 @@ class OAuth2View(object):
 
     def get_client(self, request, app):
         callback_url = reverse(self.adapter.provider_id + "_callback")
-        logout_url = reverse(self.adapter.provider_id + "_logout")
         protocol = (self.adapter.redirect_uri_protocol
                     or app_settings.DEFAULT_HTTP_PROTOCOL)
         callback_url = build_absolute_uri(
             request, callback_url,
-            protocol=protocol)
-        logout_url = build_absolute_uri(
-            request, logout_url,
             protocol=protocol)
         provider = self.adapter.get_provider()
         scope = provider.get_scope(request)
@@ -73,7 +69,6 @@ class OAuth2View(object):
                               self.adapter.access_token_method,
                               self.adapter.access_token_url,
                               callback_url,
-                              logout_url,
                               scope)
         return client
 
@@ -163,8 +158,8 @@ class OAuth2LogoutView(OAuth2View):
         """
         request = self.request
         return (
-            get_next_redirect_url(request) or
-            get_adapter(request).get_logout_redirect_url(request)
+            get_adapter(request).get_logout_redirect_url(request) or
+            get_next_redirect_url(request)
         )
 
 
