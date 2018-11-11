@@ -163,3 +163,28 @@ class OAuth2LogoutView(OAuth2View):
         )
 
 
+class OAuth2CallbackLogoutView(OAuth2View):
+    def dispatch(self, request, next_page=None):
+        """
+        Redirects to the next page or home.
+        """
+        redirect_url = next_page or self.get_redirect_url()
+        redirect_to = request.build_absolute_uri(redirect_url)
+
+        app = self.adapter.get_provider().get_app(request)
+        client = self.get_client(request, app)
+
+        return HttpResponseRedirect(client.get_logout_url(redirect_to))
+
+    def get_redirect_url(self):
+        """
+        Returns the url to redirect after logout.
+        """
+        request = self.request
+        return (
+            get_adapter(request).get_logout_redirect_url(request) or
+            get_next_redirect_url(request)
+        )
+
+
+

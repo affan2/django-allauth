@@ -21,10 +21,21 @@ def default_urlpatterns(provider):
     except (ImportError, AttributeError):
         logout_view = None
 
+    try:
+        callback_logout_view = import_attribute(
+            provider.get_package() + '.views.oauth2_callback_logout')
+    except (ImportError, AttributeError):
+        callback_logout_view = None
+
     if logout_view is not None:
         urlpatterns += [
             url('^logout/$', logout_view,
                 name=provider.id + '_logout'),
+        ]
+    if callback_logout_view is not None:
+        urlpatterns += [
+            url('^logout/callback/$', callback_logout_view,
+                name=provider.id + '_callback_logout'),
         ]
 
     return [url('^' + provider.id + '/', include(urlpatterns))]
