@@ -142,7 +142,7 @@ class OAuth2LogoutView(OAuth2View):
         the redirect url is built on request data.
         """
         if request.method != "POST":
-            return HttpResponseRedirect("/")
+            return HttpResponseRedirect(reverse('account_logout'))
 
         redirect_url = next_page or self.get_redirect_url()
         redirect_to = request.build_absolute_uri(redirect_url)
