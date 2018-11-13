@@ -1,13 +1,17 @@
 from django.conf.urls import patterns, url
+from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
 
 from . import views
 
 urlpatterns = patterns(
     "",
-    url(r"^signup/$", views.signup, name="account_signup"),
-    url(r"^login/$", views.login, name="account_login"),
-    url(r"^logout/$", views.logout, name="account_logout"),
+    # url(r"^signup/$", views.signup, name="account_signup"),
+    # url(r"^login/$", views.login, name="account_login"),
+    # url(r"^logout/$", views.logout, name="account_logout"),
+    url(r"^signup/$", RedirectView.as_view(url=reverse_lazy('account_login'), permanent=False), name='account_signup'),
+    url(r"^login/$", RedirectView.as_view(url=reverse_lazy('account_login'), permanent=False)),
+    url(r"^logout/$", RedirectView.as_view(url=reverse_lazy('account_login'), permanent=False)),
 
     url(r"^password/change/$", views.password_change,
         name="account_change_password"),
