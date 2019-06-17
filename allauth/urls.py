@@ -1,23 +1,20 @@
-from django.conf.urls import url, patterns, include
+from importlib import import_module
 
-try:
-    import importlib
-except ImportError:
-    from django.utils import importlib
+from django.conf.urls import include, url
 
 from allauth.socialaccount import providers
 
 from . import app_settings
 
-urlpatterns = patterns('', url('^', include('allauth.account.urls')))
+
+urlpatterns = [url(r'^', include('allauth.account.urls'))]
 
 if app_settings.SOCIALACCOUNT_ENABLED:
-    urlpatterns += patterns('', url('^social/',
-                                    include('allauth.socialaccount.urls')))
+    urlpatterns += [url(r'^social/', include('allauth.socialaccount.urls'))]
 
 for provider in providers.registry.get_list():
     try:
-        prov_mod = importlib.import_module(provider.package + '.urls')
+        prov_mod = import_module(provider.get_package() + '.urls')
     except ImportError:
         continue
     prov_urlpatterns = getattr(prov_mod, 'urlpatterns', None)

@@ -1,17 +1,12 @@
-from django.conf.urls import patterns, url
-from django.core.urlresolvers import reverse_lazy
-from django.views.generic import RedirectView
+from django.conf.urls import url
 
 from . import views
 
-urlpatterns = patterns(
-    "",
-    # url(r"^signup/$", views.signup, name="account_signup"),
-    # url(r"^login/$", views.login, name="account_login"),
-    # url(r"^logout/$", views.logout, name="account_logout"),
-    url(r"^signup/$", RedirectView.as_view(url=reverse_lazy('account_login'), permanent=False), name='account_signup'),
-    url(r"^login/$", RedirectView.as_view(url=reverse_lazy('account_login'), permanent=False)),
-    url(r"^logout/$", RedirectView.as_view(url=reverse_lazy('account_login'), permanent=False)),
+
+urlpatterns = [
+    url(r"^signup/$", views.signup, name="account_signup"),
+    url(r"^login/$", views.login, name="account_login"),
+    url(r"^logout/$", views.logout, name="account_logout"),
 
     url(r"^password/change/$", views.password_change,
         name="account_change_password"),
@@ -23,7 +18,7 @@ urlpatterns = patterns(
     url(r"^email/$", views.email, name="account_email"),
     url(r"^confirm-email/$", views.email_verification_sent,
         name="account_email_verification_sent"),
-    url(r"^confirm-email/(?P<key>\w+)/$", views.confirm_email,
+    url(r"^confirm-email/(?P<key>[-:\w]+)/$", views.confirm_email,
         name="account_confirm_email"),
 
     # password reset
@@ -36,4 +31,4 @@ urlpatterns = patterns(
         name="account_reset_password_from_key"),
     url(r"^password/reset/key/done/$", views.password_reset_from_key_done,
         name="account_reset_password_from_key_done"),
-)
+]

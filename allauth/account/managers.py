@@ -1,23 +1,23 @@
 from datetime import timedelta
 
-from django.utils import timezone
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from . import app_settings
 
 
 class EmailAddressManager(models.Manager):
 
-    def add_email(self, request, user, email, 
+    def add_email(self, request, user, email,
                   confirm=False, signup=False):
-        try:
-            email_address = self.get(user=user, email__iexact=email)
-        except self.model.DoesNotExist:
-            email_address = self.create(user=user, email=email)
-            if confirm:
-                email_address.send_confirmation(request,
-                                                signup=signup)
+        email_address, created = self.get_or_create(
+            user=user, email__iexact=email, defaults={"email": email}
+        )
+
+        if created and confirm:
+            email_address.send_confirmation(request, signup=signup)
+
         return email_address
 
     def get_primary(self, user):
@@ -45,8 +45,12 @@ class EmailAddressManager(models.Manager):
         cache_key = '_emailaddress_cache'
         addresses = getattr(user, cache_key, None)
         if addresses is None:
-            return self.get(user=user,
-                            email__iexact=email)
+            ret = self.get(user=user,
+                           email__iexact=email)
+            # To avoid additional lookups when e.g.
+            # EmailAddress.set_as_primary() starts touching self.user
+            ret.user = user
+            return ret
         else:
             for address in addresses:
                 if address.email.lower() == email.lower():

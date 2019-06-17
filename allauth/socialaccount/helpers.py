@@ -1,28 +1,24 @@
 from django.contrib import messages
-from django.contrib.auth import logout
-from django.shortcuts import render_to_response, render
-from django.http import HttpResponseRedirect
-from django.template import RequestContext
 from django.forms import ValidationError
-from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse
 
-from allauth.account.utils import (perform_login, complete_signup,
-                                   user_username)
 from allauth.account import app_settings as account_settings
 from allauth.account.adapter import get_adapter as get_account_adapter
+from allauth.account.utils import complete_signup, perform_login, user_username
 from allauth.exceptions import ImmediateHttpResponse
-from .providers.base import AuthProcess, AuthError
 
-from .models import SocialLogin
-
-from . import app_settings
-from . import signals
+from . import app_settings, signals
 from .adapter import get_adapter
+from .models import SocialLogin
+from .providers.base import AuthError, AuthProcess
 
 
 def _process_signup(request, sociallogin):
-    auto_signup = get_adapter().is_auto_signup_allowed(request,
-                                                       sociallogin)
+    auto_signup = get_adapter(request).is_auto_signup_allowed(
+        request,
+        sociallogin)
     if not auto_signup:
         request.session['socialaccount_sociallogin'] = sociallogin.serialize()
         url = reverse('socialaccount_signup')
@@ -40,14 +36,14 @@ def _process_signup(request, sociallogin):
         # FIXME: This part contains a lot of duplication of logic
         # ("closed" rendering, create user, send email, in active
         # etc..)
-        try:
-            if not get_adapter().is_open_for_signup(request,
-                                                    sociallogin):
-                return render(request,
-                              "account/signup_closed.html")
-        except ImmediateHttpResponse as e:
-            return e.response
-        get_adapter().save_user(request, sociallogin, form=None)
+        if not get_adapter(request).is_open_for_signup(
+                request,
+                sociallogin):
+            return render(
+                request,
+                "account/signup_closed." +
+                account_settings.TEMPLATE_EXTENSION)
+        get_adapter(request).save_user(request, sociallogin, form=None)
         ret = complete_social_signup(request, sociallogin)
     return ret
 
@@ -67,11 +63,12 @@ def render_authentication_error(request,
     try:
         if extra_context is None:
             extra_context = {}
-        get_adapter().authentication_error(request,
-                                           provider_id,
-                                           error=error,
-                                           exception=exception,
-                                           extra_context=extra_context)
+        get_adapter(request).authentication_error(
+            request,
+            provider_id,
+            error=error,
+            exception=exception,
+            extra_context=extra_context)
     except ImmediateHttpResponse as e:
         return e.response
     if error == AuthError.CANCELLED:
@@ -84,18 +81,22 @@ def render_authentication_error(request,
         }
     }
     context.update(extra_context)
-    return render_to_response(
-        "socialaccount/authentication_error.html",
-        context, context_instance=RequestContext(request))
+    return render(
+        request,
+        "socialaccount/authentication_error." +
+        account_settings.TEMPLATE_EXTENSION,
+        context
+    )
 
 
 def _add_social_account(request, sociallogin):
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         # This should not happen. Simply redirect to the connections
         # view (which has a login required)
         return HttpResponseRedirect(reverse('socialaccount_connections'))
     level = messages.INFO
     message = 'socialaccount/messages/account_connected.txt'
+    action = None
     if sociallogin.is_existing:
         if sociallogin.user != request.user:
             # Social account of other user. For now, this scenario
@@ -105,24 +106,33 @@ def _add_social_account(request, sociallogin):
             level = messages.ERROR
             message = 'socialaccount/messages/account_connected_other.txt'
         else:
-            # This account is already connected -- let's play along
-            # and render the standard "account connected" message
-            # without actually doing anything.
-            pass
+            # This account is already connected -- we give the opportunity
+            # for customized behaviour through use of a signal. If not
+            # implemented, we render the standard "account connected"
+            # message without actually doing anything.
+            action = 'updated'
+            signals.social_account_updated.send(
+                sender=SocialLogin,
+                request=request,
+                sociallogin=sociallogin)
     else:
         # New account, let's connect
+        action = 'added'
         sociallogin.connect(request, request.user)
-        try:
-            signals.social_account_added.send(sender=SocialLogin,
-                                              request=request,
-                                              sociallogin=sociallogin)
-        except ImmediateHttpResponse as e:
-            return e.response
-    default_next = get_adapter() \
-        .get_connect_redirect_url(request,
-                                  sociallogin.account)
+        signals.social_account_added.send(sender=SocialLogin,
+                                          request=request,
+                                          sociallogin=sociallogin)
+    default_next = get_adapter(request).get_connect_redirect_url(
+        request,
+        sociallogin.account)
     next_url = sociallogin.get_redirect_url(request) or default_next
-    get_account_adapter().add_message(request, level, message)
+    get_account_adapter(request).add_message(
+        request, level, message,
+        message_context={
+            'sociallogin': sociallogin,
+            'action': action
+        }
+    )
     return HttpResponseRedirect(next_url)
 
 
@@ -130,19 +140,19 @@ def complete_social_login(request, sociallogin):
     assert not sociallogin.is_existing
     sociallogin.lookup()
     try:
-        get_adapter().pre_social_login(request, sociallogin)
+        get_adapter(request).pre_social_login(request, sociallogin)
         signals.pre_social_login.send(sender=SocialLogin,
                                       request=request,
                                       sociallogin=sociallogin)
+        process = sociallogin.state.get('process')
+        if process == AuthProcess.REDIRECT:
+            return _social_login_redirect(request, sociallogin)
+        elif process == AuthProcess.CONNECT:
+            return _add_social_account(request, sociallogin)
+        else:
+            return _complete_social_login(request, sociallogin)
     except ImmediateHttpResponse as e:
         return e.response
-    process = sociallogin.state.get('process')
-    if process == AuthProcess.REDIRECT:
-        return _social_login_redirect(request, sociallogin)
-    elif process == AuthProcess.CONNECT:
-        return _add_social_account(request, sociallogin)
-    else:
-        return _complete_social_login(request, sociallogin)
 
 
 def _social_login_redirect(request, sociallogin):
@@ -151,11 +161,15 @@ def _social_login_redirect(request, sociallogin):
 
 
 def _complete_social_login(request, sociallogin):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         get_account_adapter(request).logout(request)
     if sociallogin.is_existing:
         # Login existing user
         ret = _login_social_account(request, sociallogin)
+        signals.social_account_updated.send(
+            sender=SocialLogin,
+            request=request,
+            sociallogin=sociallogin)
     else:
         # New social user
         ret = _process_signup(request, sociallogin)
