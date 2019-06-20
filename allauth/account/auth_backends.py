@@ -3,8 +3,8 @@ from threading import local
 from django.contrib.auth.backends import ModelBackend
 
 from ..utils import get_user_model
-from . import app_settings
-from .app_settings import AuthenticationMethod
+from . import app_settings as account_appsettings
+from .app_settings import AppSettings
 from .utils import filter_users_by_email, filter_users_by_username
 
 
@@ -15,10 +15,10 @@ class AuthenticationBackend(ModelBackend):
 
     def authenticate(self, request, **credentials):
         ret = None
-        if app_settings.AUTHENTICATION_METHOD == AuthenticationMethod.EMAIL:
+        if account_appsettings.AppSettings.AUTHENTICATION_METHOD == AppSettings.AuthenticationMethod.EMAIL:
             ret = self._authenticate_by_email(**credentials)
-        elif app_settings.AUTHENTICATION_METHOD \
-                == AuthenticationMethod.USERNAME_EMAIL:
+        elif account_appsettings.AppSettings.AUTHENTICATION_METHOD \
+                == AppSettings.AuthenticationMethod.USERNAME_EMAIL:
             ret = self._authenticate_by_email(**credentials)
             if not ret:
                 ret = self._authenticate_by_username(**credentials)
@@ -27,7 +27,7 @@ class AuthenticationBackend(ModelBackend):
         return ret
 
     def _authenticate_by_username(self, **credentials):
-        username_field = app_settings.USER_MODEL_USERNAME_FIELD
+        username_field = account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD
         username = credentials.get('username')
         password = credentials.get('password')
 

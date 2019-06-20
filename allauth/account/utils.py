@@ -22,7 +22,7 @@ from ..utils import (
 )
 from . import app_settings, signals
 from .adapter import get_adapter
-from .app_settings import EmailVerificationMethod
+from .app_settings import AppSettings
 
 
 def get_next_redirect_url(request, redirect_field_name="next"):
@@ -133,13 +133,13 @@ def perform_login(request, user, email_verification,
     from .models import EmailAddress
     has_verified_email = EmailAddress.objects.filter(user=user,
                                                      verified=True).exists()
-    if email_verification == EmailVerificationMethod.NONE:
+    if email_verification == AppSettings.EmailVerificationMethod.NONE:
         pass
-    elif email_verification == EmailVerificationMethod.OPTIONAL:
+    elif email_verification == AppSettings.EmailVerificationMethod.OPTIONAL:
         # In case of OPTIONAL verification: send on signup.
         if not has_verified_email and signup:
             send_email_confirmation(request, user, signup=signup)
-    elif email_verification == EmailVerificationMethod.MANDATORY:
+    elif email_verification == AppSettings.EmailVerificationMethod.MANDATORY:
         if not has_verified_email:
             send_email_confirmation(request, user, signup=signup)
             return adapter.respond_email_verification_sent(

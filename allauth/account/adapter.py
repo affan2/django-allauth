@@ -26,7 +26,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
-from allauth.compat import force_str, ugettext_lazy as _
+from ..compat import force_str, ugettext_lazy as _
 
 from ..utils import (
     build_absolute_uri,
@@ -486,7 +486,7 @@ class DefaultAccountAdapter(object):
 
     def authenticate(self, request, **credentials):
         """Only authenticates, does not actually login. See `login`"""
-        from allauth.account.auth_backends import AuthenticationBackend
+        from .auth_backends import AuthenticationBackend
 
         self.pre_authenticate(request, **credentials)
         AuthenticationBackend.unstash_authenticated_user()

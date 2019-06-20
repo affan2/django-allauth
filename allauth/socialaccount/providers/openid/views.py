@@ -10,7 +10,7 @@ from openid.extensions.ax import AttrInfo, FetchRequest
 from openid.extensions.sreg import SRegRequest
 
 from allauth.socialaccount import providers
-from allauth.socialaccount.app_settings import QUERY_EMAIL
+from allauth.socialaccount.app_settings import AppSettings
 from allauth.socialaccount.helpers import (
     complete_social_login,
     render_authentication_error,
@@ -91,7 +91,7 @@ class OpenIDLoginView(View):
         realm = self.get_realm(provider)
 
         auth_request = client.begin(form.cleaned_data['openid'])
-        if QUERY_EMAIL:
+        if AppSettings.QUERY_EMAIL:
             sreg = SRegRequest()
             for name in SRegFields:
                 sreg.requestField(

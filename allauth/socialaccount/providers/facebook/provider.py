@@ -10,7 +10,7 @@ from django.utils.html import escapejs, mark_safe
 from django.utils.http import urlquote
 
 from allauth.account.models import EmailAddress
-from allauth.socialaccount.app_settings import QUERY_EMAIL
+from allauth.socialaccount.app_settings import AppSettings
 from allauth.socialaccount.providers.base import (
     AuthAction,
     AuthProcess,
@@ -89,7 +89,7 @@ class FacebookProvider(OAuth2Provider):
 
     def get_default_scope(self):
         scope = []
-        if QUERY_EMAIL:
+        if AppSettings.QUERY_EMAIL:
             scope.append('email')
         return scope
 

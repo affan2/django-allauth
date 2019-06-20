@@ -24,6 +24,7 @@ from django.utils import dateparse
 from django.utils.encoding import force_bytes
 
 from allauth.compat import force_str, six, urlsplit
+from .account import app_settings as account_appsettings
 
 
 # Magic number 7: if you run into collisions with this number, then you are
@@ -63,10 +64,10 @@ def _generate_unique_username_base(txts, regex=None):
 
 
 def get_username_max_length():
-    from .account.app_settings import USER_MODEL_USERNAME_FIELD
-    if USER_MODEL_USERNAME_FIELD is not None:
+    from .account import app_settings as account_appsettings
+    if account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD is not None:
         User = get_user_model()
-        max_length = User._meta.get_field(USER_MODEL_USERNAME_FIELD).max_length
+        max_length = User.meta.get_field(account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD).max_length
     else:
         max_length = 0
     return max_length
@@ -81,12 +82,11 @@ def generate_username_candidate(basename, suffix_length):
 
 
 def generate_username_candidates(basename):
-    from .account.app_settings import USERNAME_MIN_LENGTH
-    if len(basename) >= USERNAME_MIN_LENGTH:
+    if len(basename) >= account_appsettings.AppSettings.USERNAME_MIN_LENGTH:
         ret = [basename]
     else:
         ret = []
-    min_suffix_length = max(1, USERNAME_MIN_LENGTH - len(basename))
+    min_suffix_length = max(1, account_appsettings.AppSettings.USERNAME_MIN_LENGTH - len(basename))
     max_suffix_length = min(
         get_username_max_length(),
         MAX_USERNAME_SUFFIX_LENGTH)
@@ -96,7 +96,6 @@ def generate_username_candidates(basename):
 
 
 def generate_unique_username(txts, regex=None):
-    from .account.app_settings import USER_MODEL_USERNAME_FIELD
     from .account.adapter import get_adapter
     from allauth.account.utils import filter_users_by_username
 
@@ -104,7 +103,7 @@ def generate_unique_username(txts, regex=None):
     basename = _generate_unique_username_base(txts, regex)
     candidates = generate_username_candidates(basename)
     existing_usernames = filter_users_by_username(*candidates).values_list(
-        USER_MODEL_USERNAME_FIELD, flat=True)
+        account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD, flat=True)
     existing_usernames = set([n.lower() for n in existing_usernames])
     for candidate in candidates:
         if candidate.lower() not in existing_usernames:
@@ -129,7 +128,6 @@ def valid_email_or_none(email):
 
 
 def email_address_exists(email, exclude_user=None):
-    from .account import app_settings as account_settings
     from .account.models import EmailAddress
 
     emailaddresses = EmailAddress.objects
@@ -137,7 +135,7 @@ def email_address_exists(email, exclude_user=None):
         emailaddresses = emailaddresses.exclude(user=exclude_user)
     ret = emailaddresses.filter(email__iexact=email).exists()
     if not ret:
-        email_field = account_settings.USER_MODEL_EMAIL_FIELD
+        email_field = account_appsettings.USER_MODEL_EMAIL_FIELD
         if email_field:
             users = get_user_model().objects
             if exclude_user:
@@ -262,14 +260,14 @@ def build_absolute_uri(request, location, protocol=None):
     Like request.build_absolute_uri, but gracefully handling
     the case where request is None.
     """
-    from .account import app_settings as account_settings
+    from .account import app_settings as account_appsettings
 
     if request is None:
         site = Site.objects.get_current()
         bits = urlsplit(location)
         if not (bits.scheme and bits.netloc):
             uri = '{proto}://{domain}{url}'.format(
-                proto=account_settings.DEFAULT_HTTP_PROTOCOL,
+                proto=account_appsettings.DEFAULT_HTTP_PROTOCOL,
                 domain=site.domain,
                 url=location)
         else:
@@ -283,8 +281,8 @@ def build_absolute_uri(request, location, protocol=None):
     # would want to make sure HTTPS links end up in password reset
     # mails even while they were initiated on an HTTP password reset
     # form.
-    if not protocol and account_settings.DEFAULT_HTTP_PROTOCOL == 'https':
-        protocol = account_settings.DEFAULT_HTTP_PROTOCOL
+    if not protocol and account_appsettings.DEFAULT_HTTP_PROTOCOL == 'https':
+        protocol = account_appsettings.DEFAULT_HTTP_PROTOCOL
     # (end NOTE)
     if protocol:
         uri = protocol + ':' + uri.partition(':')[2]

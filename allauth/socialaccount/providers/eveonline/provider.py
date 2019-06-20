@@ -1,4 +1,4 @@
-from allauth.socialaccount.app_settings import STORE_TOKENS
+from allauth.socialaccount.app_settings import AppSettings
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 
@@ -33,7 +33,7 @@ class EveOnlineProvider(OAuth2Provider):
 
     def get_default_scope(self):
         scopes = []
-        if STORE_TOKENS:
+        if AppSettings.STORE_TOKENS:
             scopes.append('publicData')
         return scopes
 
