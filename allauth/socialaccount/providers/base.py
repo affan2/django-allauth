@@ -14,7 +14,7 @@ class AuthProcess(object):
 class AuthAction(object):
     AUTHENTICATE = 'authenticate'
     REAUTHENTICATE = 'reauthenticate'
-    DEAUTHENTICATE = 'deauthenticate'
+    REREQUEST = 'rerequest'
 
 
 class AuthError(object):
@@ -133,7 +133,7 @@ class Provider(object):
     def cleanup_email_addresses(self, email, addresses):
         # Move user.email over to EmailAddress
         if (email and email.lower() not in [
-            a.email.lower() for a in addresses]):
+                a.email.lower() for a in addresses]):
             addresses.append(EmailAddress(email=email,
                                           verified=False,
                                           primary=True))

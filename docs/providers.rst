@@ -449,6 +449,7 @@ The following Facebook settings are available:
     SOCIALACCOUNT_PROVIDERS = {
         'facebook': {
             'METHOD': 'oauth2',
+            'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
             'SCOPE': ['email', 'public_profile', 'user_friends'],
             'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
             'INIT_PARAMS': {'cookie': True},
@@ -474,6 +475,14 @@ The following Facebook settings are available:
 
 METHOD:
     Either ``js_sdk`` or ``oauth2``. The default is ``oauth2``.
+
+SDK_URL:
+    If needed, use ``SDK_URL`` to override the default Facebook JavaScript SDK
+    URL, ``//connect.facebook.net/{locale}/sdk.js``. This may be necessary, for
+    example, when using the `Customer Chat Plugin <https://developers.facebook.com/docs/messenger-platform/discovery/customer-chat-plugin/sdk#install>`_.
+    If the ``SDK_URL`` contains a ``{locale}`` format string named argument,
+    the locale given by the ``LOCALE_FUNC`` will be used to generate the
+    ``SDK_URL``.
 
 SCOPE:
     By default, the ``email`` scope is required depending on whether or not
@@ -1062,6 +1071,19 @@ following template tag:
     <a href="{% provider_login_url "openid" openid="https://www.google.com/accounts/o8/id" next="/success/url/" %}">Google</a>
 
 
+OpenStreetMap
+-----
+
+Register your client application under `My Settings`/`oauth settings`:
+
+    https://www.openstreetmap.org/user/{Display Name}/oauth_clients
+
+In this page you will get your key and secret
+
+For more information:
+OpenStreetMap OAuth documentation: https://wiki.openstreetmap.org/wiki/OAuth
+
+
 ORCID
 -----
 
@@ -1192,14 +1214,21 @@ Development callback URL
 
 You can specify sandbox mode by adding the following to the SOCIALACCOUNT_PROVIDERS in your settings.
 
+You can also add space-delimited scope to utilize the QuickBooks Payments and Payroll API
+
 .. code-block:: python
 
     SOCIALACCOUNT_PROVIDERS = {
         'quickbooks': {
             'SANDBOX': TRUE,
+            'SCOPE': [
+              'openid',
+              'com.intuit.quickbooks.accounting com.intuit.quickbooks.payment',
+              'profile',
+              'phone',
+            ]
         }
     }
-
 
 Reddit
 ------
@@ -1398,6 +1427,24 @@ You need to register an API key here:
 Make sure to create a Steam SocialApp with that secret key.
 
 
+Strava
+-----
+
+Register your OAuth2 app in api settings page:
+
+    https://strava.com/settings/api
+
+In this page you will get your key and secret
+
+Development callback URL (only the domain is required on strava.com/settings/api)
+
+    http://example.com/accounts/strava/login/callback/
+
+For more information:
+Strava auth documentation: https://developers.strava.com/docs/authentication/
+API documentation: https://developers.strava.com/docs/reference/
+
+
 Stripe
 ------
 
@@ -1456,8 +1503,10 @@ Twitch
 ------
 
 App registration (get your key and secret here)
-    http://www.twitch.tv/kraken/oauth2/clients/new
+    http://dev.twitch.tv/console
 
+Development callback URL
+    http://localhost:8000/accounts/twitch/login/callback/
 
 Twitter
 -------

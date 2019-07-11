@@ -131,6 +131,8 @@ Supported Providers
 
 - OpenId
 
+- OpenStreetMap (OAuth)
+
 - ORCID (OAuth2)
 
 - Patreon (OAuth2)
@@ -160,6 +162,8 @@ Supported Providers
 - Stack Exchange (OAuth2)
 
 - Steam (OpenID)
+
+- Strava (OAuth2)
 
 - Stripe (OAuth2)
 
