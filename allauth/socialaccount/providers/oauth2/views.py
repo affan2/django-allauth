@@ -8,6 +8,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import get_next_redirect_url
 from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount import providers
 from allauth.socialaccount.helpers import (
@@ -149,3 +151,56 @@ class OAuth2CallbackView(OAuth2View):
                 request,
                 self.adapter.provider_id,
                 exception=e)
+
+
+class OAuth2LogoutView(OAuth2View):
+    def dispatch(self, request, next_page=None):
+        """
+        Redirects to the social logout page.
+        next_page is used to let the server send back the user. If empty,
+        the redirect url is built on request data.
+        """
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse('account_logout'))
+
+        redirect_url = next_page or self.get_redirect_url()
+        redirect_to = request.build_absolute_uri(redirect_url)
+
+        app = self.adapter.get_provider().get_app(request)
+        client = self.get_client(request, app)
+
+        return HttpResponseRedirect(client.get_logout_url(redirect_to))
+
+    def get_redirect_url(self):
+        """
+        Returns the url to redirect after logout.
+        """
+        request = self.request
+        return (
+            get_adapter(request).get_logout_redirect_url(request) or
+            get_next_redirect_url(request)
+        )
+
+
+class OAuth2CallbackLogoutView(OAuth2View):
+    def dispatch(self, request, next_page=None):
+        """
+        Redirects to the next page or home.
+        """
+        redirect_url = next_page or self.get_redirect_url()
+        redirect_to = request.build_absolute_uri(redirect_url)
+
+        app = self.adapter.get_provider().get_app(request)
+        client = self.get_client(request, app)
+
+        return HttpResponseRedirect(client.get_logout_url(redirect_to))
+
+    def get_redirect_url(self):
+        """
+        Returns the url to redirect after logout.
+        """
+        request = self.request
+        return (
+            get_adapter(request).get_logout_redirect_url(request) or
+            get_next_redirect_url(request)
+        )
