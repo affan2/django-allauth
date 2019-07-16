@@ -518,7 +518,7 @@ class AccountTests(TestCase):
                                     email="user@example.com",
                                     primary=True,
                                     verified=False)
-        for i in range(5):
+        for i in list(range(5)):
             is_valid_attempt = (i == 4)
             is_locked = (i >= 3)
             resp = self.client.post(

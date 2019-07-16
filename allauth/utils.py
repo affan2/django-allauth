@@ -77,7 +77,7 @@ def generate_username_candidate(basename, suffix_length):
     max_length = get_username_max_length()
     suffix = ''.join(
         random.choice(USERNAME_SUFFIX_CHARS[i])
-        for i in range(suffix_length))
+        for i in list(range(suffix_length)))
     return basename[0:max_length - len(suffix)] + suffix
 
 
@@ -90,7 +90,7 @@ def generate_username_candidates(basename):
     max_suffix_length = min(
         get_username_max_length(),
         MAX_USERNAME_SUFFIX_LENGTH)
-    for suffix_length in range(min_suffix_length, max_suffix_length):
+    for suffix_length in list(range(min_suffix_length, max_suffix_length)):
         ret.append(generate_username_candidate(basename, suffix_length))
     return ret
 
