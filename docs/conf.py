@@ -38,10 +38,10 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-allauth'
-copyright = u'2017, Raymond Penners'
+project = 'django-allauth'
+copyright = '2017, Raymond Penners'
 
-# The version info for the project you're documenting, acts as replacement for
+# The version info for the project yo're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
@@ -181,8 +181,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-allauth.tex', u'django-allauth Documentation',
-   u'Raymond Penners', 'manual'),
+  ('index', 'django-allauth.tex', 'django-allauth Documentation',
+   'Raymond Penners', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -211,8 +211,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-allauth', u'django-allauth Documentation',
-     [u'Raymond Penners'], 1)
+    ('index', 'django-allauth', 'django-allauth Documentation',
+     ['Raymond Penners'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -224,8 +224,8 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author, dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'django-allauth', u'django-allauth Documentation',
-   u'Raymond Penners', 'django-allauth', 'One line description of project.',
+  ('index', 'django-allauth', 'django-allauth Documentation',
+   'Raymond Penners', 'django-allauth', 'One line description of project.',
    'Miscellaneous'),
 ]
 

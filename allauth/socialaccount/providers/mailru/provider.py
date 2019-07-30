@@ -24,8 +24,8 @@ class MailRuAccount(ProviderAccount):
 
 
 class MailRuProvider(OAuth2Provider):
-    id = 'mailru'
-    name = 'Mail.RU'
+    id = 'mailr'
+    name = 'Mail.R'
     account_class = MailRuAccount
 
     def extract_uid(self, data):

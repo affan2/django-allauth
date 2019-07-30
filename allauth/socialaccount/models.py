@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 from django.contrib.auth import authenticate
 from django.contrib.sites.models import Site
@@ -80,7 +80,7 @@ class SocialAccount(models.Model):
     provider = models.CharField(verbose_name=_('provider'),
                                 max_length=30,
                                 choices=providers.registry.as_choices())
-    # Just in case you're wondering if an OpenID identity URL is going
+    # Just in case yo're wondering if an OpenID identity URL is going
     # to fit in a 'uid':
     #
     # Ideally, URLField(max_length=1024, unique=True) would be used

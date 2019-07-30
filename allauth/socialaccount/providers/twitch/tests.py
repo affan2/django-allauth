@@ -75,7 +75,7 @@ class TwitchTests(OAuth2TestsMixin, TestCase):
             self._run_just_complete_login(resp_mock)
 
         self.assertEqual(
-            str(error_ctx.exception).replace('u', ''),
+            str(error_ctx.exception).replace('', ''),
             expected_error
         )
 

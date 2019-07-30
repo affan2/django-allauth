@@ -17,8 +17,7 @@ class ProviderLoginURLNode(template.Node):
         provider_id = self.provider_id_var.resolve(context)
         request = context.get('request')
         provider = providers.registry.by_id(provider_id, request)
-        query = dict([(str(name), var.resolve(context)) for name, var
-                      in self.params.items()])
+        query = dict([(str(name), var.resolve(context)) for name, var in list(self.params.items())])
         auth_params = query.get('auth_params', None)
         scope = query.get('scope', None)
         process = query.get('process', None)

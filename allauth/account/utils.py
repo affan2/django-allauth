@@ -231,12 +231,12 @@ def cleanup_email_addresses(request, addresses):
         primary_address = primary_addresses[0]
     elif e2a:
         # Pick the first
-        primary_address = e2a.keys()[0]
+        primary_address = list(e2a.keys())[0]
     else:
         # Empty
         primary_address = None
     # There can only be one primary
-    for a in e2a.values():
+    for a in list(e2a.values()):
         a.primary = primary_address.email.lower() == a.email.lower()
     return list(e2a.values()), primary_address
 

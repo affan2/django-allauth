@@ -171,7 +171,7 @@ def serialize_instance(instance):
     Serialization will start complaining about missing relations et al.
     """
     data = {}
-    for k, v in instance.__dict__.items():
+    for k, v in list(instance.__dict__.items()):
         if k.startswith('_') or callable(v):
             continue
         try:
@@ -196,7 +196,7 @@ def serialize_instance(instance):
 
 def deserialize_instance(model, data):
     ret = model()
-    for k, v in data.items():
+    for k, v in list(data.items()):
         is_db_value = False
         if k.startswith(SERIALIZED_DB_FIELD_PREFIX):
             k = k[len(SERIALIZED_DB_FIELD_PREFIX):]

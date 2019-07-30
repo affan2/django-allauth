@@ -13,7 +13,7 @@ class ProviderRegistry(object):
         self.load()
         return [
             provider_cls(request)
-            for provider_cls in self.provider_map.values()]
+            for provider_cls in list(self.provider_map.values())]
 
     def register(self, cls):
         self.provider_map[cls.id] = cls
@@ -24,7 +24,7 @@ class ProviderRegistry(object):
 
     def as_choices(self):
         self.load()
-        for provider_cls in self.provider_map.values():
+        for provider_cls in list(self.provider_map.values()):
             yield (provider_cls.id, provider_cls.name)
 
     def load(self):

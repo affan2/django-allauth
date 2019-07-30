@@ -17,8 +17,8 @@ class BaiduAccount(ProviderAccount):
 
 
 class BaiduProvider(OAuth2Provider):
-    id = 'baidu'
-    name = 'Baidu'
+    id = 'baid'
+    name = 'Baid'
     account_class = BaiduAccount
 
     def extract_uid(self, data):

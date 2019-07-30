@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase

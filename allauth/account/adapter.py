@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 
 import hashlib
 import json
@@ -362,7 +362,7 @@ class DefaultAccountAdapter(object):
                 'widget': {
                     'attrs': {
                         k: force_str(v)
-                        for k, v in field.field.widget.attrs.items()
+                        for k, v in list(field.field.widget.attrs.items())
                     }
                 }
             }
@@ -411,9 +411,8 @@ class DefaultAccountAdapter(object):
 
     def get_user_search_fields(self):
         user = get_user_model()()
-        return filter(lambda a: a and hasattr(user, a),
-                      [app_settings.USER_MODEL_USERNAME_FIELD,
-                       'first_name', 'last_name', 'email'])
+        return [a for a in [app_settings.USER_MODEL_USERNAME_FIELD,
+                            'first_name', 'last_name', 'email'] if a and hasattr(user, a)]
 
     def is_safe_url(self, url):
         from django.utils.http import is_safe_url

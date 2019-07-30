@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
+, unicode_literals
 
 from importlib import import_module
 from requests.exceptions import HTTPError

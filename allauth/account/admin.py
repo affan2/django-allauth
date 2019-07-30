@@ -13,7 +13,7 @@ class EmailAddressAdmin(admin.ModelAdmin):
 
     def get_search_fields(self, request):
         base_fields = get_adapter(request).get_user_search_fields()
-        return ['email'] + list(map(lambda a: 'user__' + a, base_fields))
+        return ['email'] + list(['user__' + a for a in base_fields])
 
 
 class EmailConfirmationAdmin(admin.ModelAdmin):

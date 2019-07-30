@@ -31,7 +31,7 @@ class SocialAccountAdmin(admin.ModelAdmin):
 
     def get_search_fields(self, request):
         base_fields = get_adapter().get_user_search_fields()
-        return list(map(lambda a: 'user__' + a, base_fields))
+        return list(['user__' + a for a in base_fields])
 
 
 class SocialTokenAdmin(admin.ModelAdmin):
