@@ -1,5 +1,6 @@
 import base64
 import pickle
+from abc import ABC
 
 from openid.association import Association as OIDAssociation
 from openid.extensions.ax import FetchResponse
@@ -66,7 +67,7 @@ SRegFields = [
 ]
 
 
-class DBOpenIDStore(OIDStore):
+class DBOpenIDStore(OIDStore, ABC):
     max_nonce_age = 6 * 60 * 60
 
     def storeAssociation(self, server_url, assoc=None):

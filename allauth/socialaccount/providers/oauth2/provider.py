@@ -1,3 +1,5 @@
+from abc import ABC
+
 from django.urls import reverse
 from django.utils.http import urlencode
 
@@ -5,7 +7,7 @@ from allauth.compat import parse_qsl
 from allauth.socialaccount.providers.base import Provider
 
 
-class OAuth2Provider(Provider):
+class OAuth2Provider(Provider, ABC):
 
     def get_login_url(self, request, **kwargs):
         url = reverse(self.id + "_login")
