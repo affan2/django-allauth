@@ -104,7 +104,7 @@ class DBOpenIDStore(OIDStore, ABC):
         for stored_assoc in stored_assocs:
             assoc = OIDAssociation(
                 stored_assoc.handle,
-                base64.decodestring(stored_assoc.secret.encode('utf-8')),
+                base64.decodebytes(stored_assoc.secret.encode('utf-8')),
                 stored_assoc.issued, stored_assoc.lifetime,
                 stored_assoc.assoc_type
             )
