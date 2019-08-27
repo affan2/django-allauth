@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-, unicode_literals
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from importlib import import_module
 from requests.exceptions import HTTPError
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+# from django.contrib.auth.models import User
 from django.core import mail
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
@@ -25,8 +27,8 @@ from .provider import GoogleProvider
 @override_settings(
     SOCIALACCOUNT_AUTO_SIGNUP=True,
     ACCOUNT_SIGNUP_FORM_CLASS=None,
-    ACCOUNT_EMAIL_VERIFICATION=account_settings
-    .EmailVerificationMethod.MANDATORY)
+    ACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.MANDATORY
+)
 class GoogleTests(OAuth2TestsMixin, TestCase):
     provider_id = GoogleProvider.id
 
@@ -93,7 +95,7 @@ class GoogleTests(OAuth2TestsMixin, TestCase):
                                             given_name=first_name,
                                             family_name=last_name,
                                             verified_email=True))
-        user = User.objects.get(email=email)
+        user = get_user_model().objects.get(email=email)
         self.assertEqual(user.username, 'raymond.penners')
 
     def test_email_verified(self):
@@ -160,7 +162,7 @@ class GoogleTests(OAuth2TestsMixin, TestCase):
 
     def test_account_connect(self):
         email = "user@example.com"
-        user = User.objects.create(username='user',
+        user = get_user_model().objects.create(username='user',
                                    is_active=True,
                                    email=email)
         user.set_password('test')
@@ -184,10 +186,8 @@ class GoogleTests(OAuth2TestsMixin, TestCase):
             email=email).count(), 1)
 
     @override_settings(
-        ACCOUNT_EMAIL_VERIFICATION=account_settings
-        .EmailVerificationMethod.MANDATORY,
-        SOCIALACCOUNT_EMAIL_VERIFICATION=account_settings
-        .EmailVerificationMethod.NONE
+        ACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.MANDATORY,
+        SOCIALACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.NONE
     )
     def test_social_email_verification_skipped(self):
         test_email = "raymond.penners@example.com"
@@ -198,10 +198,8 @@ class GoogleTests(OAuth2TestsMixin, TestCase):
             email_address__email=test_email).exists())
 
     @override_settings(
-        ACCOUNT_EMAIL_VERIFICATION=account_settings
-        .EmailVerificationMethod.OPTIONAL,
-        SOCIALACCOUNT_EMAIL_VERIFICATION=account_settings
-        .EmailVerificationMethod.OPTIONAL
+        ACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.OPTIONAL,
+        SOCIALACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.OPTIONAL
     )
     def test_social_email_verification_optional(self):
         self.login(self.get_mocked_response(verified_email=False))

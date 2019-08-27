@@ -26,6 +26,8 @@ from django.utils.encoding import force_bytes
 from allauth.compat import force_str, six, urlsplit
 from .account import app_settings as account_appsettings
 
+from django.conf import settings
+
 
 # Magic number 7: if you run into collisions with this number, then you are
 # of big enough scale to start investing in a decent user model...
@@ -66,8 +68,7 @@ def _generate_unique_username_base(txts, regex=None):
 def get_username_max_length():
     from .account import app_settings as account_appsettings
     if account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD is not None:
-        User = get_user_model()
-        max_length = User.meta.get_field(account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD).max_length
+        max_length = get_user_model().meta.get_field(account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD).max_length
     else:
         max_length = 0
     return max_length

@@ -3,6 +3,7 @@
 
 from django.db import models, migrations
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 UNIQUE_EMAIL = getattr(settings, 'ACCOUNT_UNIQUE_EMAIL', True)
 EMAIL_MAX_LENGTH = getattr(settings, 'ACCOUNT_EMAIL_MAX_LENGTH', 254)

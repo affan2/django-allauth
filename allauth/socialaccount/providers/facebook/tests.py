@@ -10,17 +10,18 @@ from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase, patch
-from allauth.utils import get_user_model
 
 from .provider import FacebookProvider
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 @override_settings(
     SOCIALACCOUNT_AUTO_SIGNUP=True,
     ACCOUNT_SIGNUP_FORM_CLASS=None,
     LOGIN_REDIRECT_URL='/accounts/profile/',
-    ACCOUNT_EMAIL_VERIFICATION=account_settings
-    .EmailVerificationMethod.NONE,
+    ACCOUNT_EMAIL_VERIFICATION=account_settings.EmailVerificationMethod.NONE,
     SOCIALACCOUNT_PROVIDERS={
         'facebook': {
             'AUTH_PARAMS': {},
@@ -58,8 +59,8 @@ class FacebookTests(OAuth2TestsMixin, TestCase):
         return MockedResponse(200, data)
 
     def test_username_conflict(self):
-        User = get_user_model()
-        User.objects.create(username='raymond.penners')
+        
+        get_user_model().objects.create(username='raymond.penners')
         self.login(self.get_mocked_response())
         socialaccount = SocialAccount.objects.get(uid='630595557')
         self.assertEqual(socialaccount.user.username, 'raymond')

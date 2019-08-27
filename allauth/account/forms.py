@@ -1,4 +1,4 @@
-
+from django.conf import settings
 
 import warnings
 from importlib import import_module
@@ -571,11 +571,10 @@ class UserTokenForm(forms.Form):
     }
 
     def _get_user(self, uidb36):
-        User = get_user_model()
         try:
             pk = url_str_to_user_pk(uidb36)
-            return User.objects.get(pk=pk)
-        except (ValueError, User.DoesNotExist):
+            return get_user_model().objects.get(pk=pk)
+        except (ValueError, get_user_model().DoesNotExist):
             return None
 
     def clean(self):

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-, unicode_literals
 
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase

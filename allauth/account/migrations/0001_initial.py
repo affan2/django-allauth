@@ -4,6 +4,7 @@
 from django.db import models, migrations
 import django.utils.timezone
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 UNIQUE_EMAIL = getattr(settings, 'ACCOUNT_UNIQUE_EMAIL', True)
 
@@ -11,7 +12,7 @@ UNIQUE_EMAIL = getattr(settings, 'ACCOUNT_UNIQUE_EMAIL', True)
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency(get_user_model()),
     ]
 
     operations = [
@@ -22,7 +23,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(unique=UNIQUE_EMAIL, max_length=75, verbose_name='e-mail address')),
                 ('verified', models.BooleanField(default=False, verbose_name='verified')),
                 ('primary', models.BooleanField(default=False, verbose_name='primary')),
-                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name='user', to=get_user_model(), on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'email address',

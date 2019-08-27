@@ -7,6 +7,7 @@ from . import app_settings as account_appsettings
 from .app_settings import AppSettings
 from .utils import filter_users_by_email, filter_users_by_username
 
+from django.conf import settings
 
 _stash = local()
 
@@ -31,8 +32,6 @@ class AuthenticationBackend(ModelBackend):
         username = credentials.get('username')
         password = credentials.get('password')
 
-        User = get_user_model()
-
         if not username_field or username is None or password is None:
             return None
         try:
@@ -40,7 +39,7 @@ class AuthenticationBackend(ModelBackend):
             user = filter_users_by_username(username).get()
             if self._check_password(user, password):
                 return user
-        except User.DoesNotExist:
+        except get_user_model().DoesNotExist:
             return None
 
     def _authenticate_by_email(self, **credentials):

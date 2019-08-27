@@ -1,5 +1,3 @@
-
-
 import datetime
 
 from django.core import signing
@@ -10,7 +8,7 @@ from django.utils.crypto import get_random_string
 from allauth.compat import python_2_unicode_compatible, ugettext_lazy as _
 
 from .. import app_settings as allauth_appsettings
-from . import app_settings as account_appsettings, signals
+from . import app_settings, signals
 from .adapter import get_adapter
 from .managers import EmailAddressManager, EmailConfirmationManager
 from .utils import user_email
@@ -18,12 +16,11 @@ from .utils import user_email
 
 @python_2_unicode_compatible
 class EmailAddress(models.Model):
-
     user = models.ForeignKey(allauth_appsettings.USER_MODEL,
                              verbose_name=_('user'),
                              on_delete=models.CASCADE)
-    email = models.EmailField(unique=account_appsettings.AppSettings.UNIQUE_EMAIL,
-                              max_length=account_appsettings.AppSettings.EMAIL_MAX_LENGTH,
+    email = models.EmailField(unique=app_settings.UNIQUE_EMAIL,
+                              max_length=app_settings.EMAIL_MAX_LENGTH,
                               verbose_name=_('e-mail address'))
     verified = models.BooleanField(verbose_name=_('verified'), default=False)
     primary = models.BooleanField(verbose_name=_('primary'), default=False)
@@ -33,7 +30,7 @@ class EmailAddress(models.Model):
     class Meta:
         verbose_name = _("email address")
         verbose_name_plural = _("email addresses")
-        if not account_appsettings.AppSettings.UNIQUE_EMAIL:
+        if not app_settings.UNIQUE_EMAIL:
             unique_together = [("user", "email")]
 
     def __str__(self):
@@ -53,7 +50,7 @@ class EmailAddress(models.Model):
         return True
 
     def send_confirmation(self, request=None, signup=False):
-        if account_appsettings.AppSettings.EMAIL_CONFIRMATION_HMAC:
+        if app_settings.EMAIL_CONFIRMATION_HMAC:
             confirmation = EmailConfirmationHMAC(self)
         else:
             confirmation = EmailConfirmation.create(self)
@@ -102,7 +99,7 @@ class EmailConfirmation(models.Model):
 
     def key_expired(self):
         expiration_date = self.sent \
-            + datetime.timedelta(days=account_appsettings.AppSettings
+            + datetime.timedelta(days=app_settings.AppSettings
                                  .EMAIL_CONFIRMATION_EXPIRE_DAYS)
         return expiration_date <= timezone.now()
     key_expired.boolean = True
@@ -135,17 +132,17 @@ class EmailConfirmationHMAC:
     def key(self):
         return signing.dumps(
             obj=self.email_address.pk,
-            salt=account_appsettings.AppSettings.SALT)
+            salt=app_settings.SALT)
 
     @classmethod
     def from_key(cls, key):
         try:
             max_age = (
-                60 * 60 * 24 * account_appsettings.AppSettings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
+                60 * 60 * 24 * app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
             pk = signing.loads(
                 key,
                 max_age=max_age,
-                salt=account_appsettings.AppSettings.SALT)
+                salt=app_settings.SALT)
             ret = EmailConfirmationHMAC(EmailAddress.objects.get(pk=pk))
         except (signing.SignatureExpired,
                 signing.BadSignature,

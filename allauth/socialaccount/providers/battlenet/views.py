@@ -15,6 +15,7 @@ Resources:
 import requests
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 from allauth.socialaccount.providers.oauth2.views import (

@@ -1,5 +1,3 @@
-
-
 import json
 import uuid
 from datetime import timedelta
@@ -787,8 +785,7 @@ class AccountTests(TestCase):
 class EmailFormTests(TestCase):
 
     def setUp(self):
-        User = get_user_model()
-        self.user = User.objects.create(username='john',
+        self.user = get_user_model().objects.create(username='john',
                                         email="john1@example.org")
         self.user.set_password('doe')
         self.user.save()
@@ -1113,7 +1110,7 @@ class UtilsTests(TestCase):
 
     @override_settings(ACCOUNT_PRESERVE_USERNAME_CASING=False)
     def test_username_lower_cased(self):
-        user = get_user_model()()
+        user = get_user_model()
         user_username(user, 'CamelCase')
         self.assertEqual(user_username(user), 'camelcase')
         # TODO: Actually test something
@@ -1121,7 +1118,7 @@ class UtilsTests(TestCase):
 
     @override_settings(ACCOUNT_PRESERVE_USERNAME_CASING=True)
     def test_username_case_preserved(self):
-        user = get_user_model()()
+        user = get_user_model()
         user_username(user, 'CamelCase')
         self.assertEqual(user_username(user), 'CamelCase')
         # TODO: Actually test something

@@ -2,6 +2,7 @@ import re
 import requests
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from allauth.exceptions import ImmediateHttpResponse

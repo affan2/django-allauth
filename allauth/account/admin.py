@@ -22,6 +22,6 @@ class EmailConfirmationAdmin(admin.ModelAdmin):
     raw_id_fields = ('email_address',)
 
 
-if not account_appsettings.AppSettings.EMAIL_CONFIRMATION_HMAC:
+if not account_appsettings.EMAIL_CONFIRMATION_HMAC:
     admin.site.register(EmailConfirmation, EmailConfirmationAdmin)
 admin.site.register(EmailAddress, EmailAddressAdmin)

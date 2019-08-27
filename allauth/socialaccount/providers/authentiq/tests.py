@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-, unicode_literals
 
 import json
 
@@ -11,6 +10,9 @@ from allauth.tests import MockedResponse, TestCase
 
 from .provider import AuthentiqProvider
 from .views import AuthentiqOAuth2Adapter
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 class AuthentiqTests(OAuth2TestsMixin, TestCase):

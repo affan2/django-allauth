@@ -3,6 +3,7 @@
 
 from django.db import models, migrations
 from django.conf import settings
+from django.contrib.auth import get_user_model
 import allauth.socialaccount.fields
 from allauth.socialaccount.providers import registry
 
@@ -11,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('sites', '0001_initial'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency(get_user_model()),
     ]
 
     operations = [
@@ -24,7 +25,7 @@ class Migration(migrations.Migration):
                 ('last_login', models.DateTimeField(auto_now=True, verbose_name='last login')),
                 ('date_joined', models.DateTimeField(auto_now_add=True, verbose_name='date joined')),
                 ('extra_data', allauth.socialaccount.fields.JSONField(default='{}', verbose_name='extra data')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'social account',

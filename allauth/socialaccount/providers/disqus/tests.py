@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-, unicode_literals
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.test.utils import override_settings
 
 from allauth.account import app_settings as account_settings
@@ -36,7 +37,7 @@ class DisqusTests(OAuth2TestsMixin, TestCase):
 
     def test_account_connect(self):
         email = "user@example.com"
-        user = User.objects.create(username='user',
+        user = get_user_model().objects.create(username='user',
                                    is_active=True,
                                    email=email)
         user.set_password('test')

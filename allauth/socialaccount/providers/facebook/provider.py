@@ -2,6 +2,7 @@ import json
 import string
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.middleware.csrf import get_token
 from django.template.loader import render_to_string

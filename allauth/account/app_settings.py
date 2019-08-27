@@ -1,5 +1,6 @@
-class AppSettings(object):
+from django.contrib.auth import get_user_model
 
+class AppSettings(object):
     class AuthenticationMethod:
         USERNAME = 'username'
         EMAIL = 'email'
