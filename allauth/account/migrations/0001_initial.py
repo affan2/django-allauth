@@ -12,7 +12,7 @@ UNIQUE_EMAIL = getattr(settings, 'ACCOUNT_UNIQUE_EMAIL', True)
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(get_user_model()),
+        migrations.swappable_dependency(get_user_model().__name__),
     ]
 
     operations = [
