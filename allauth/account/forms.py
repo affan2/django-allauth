@@ -19,7 +19,6 @@ from ..utils import (
 )
 from . import app_settings as account_appsettings
 from .adapter import get_adapter
-from .app_settings import AppSettings
 from .models import EmailAddress
 from .utils import (
     filter_users_by_email,
@@ -69,7 +68,7 @@ class PasswordField(forms.CharField):
 
     def __init__(self, *args, **kwargs):
         render_value = kwargs.pop('render_value',
-                                  account_appsettings.AppSettings.PASSWORD_INPUT_RENDER_VALUE)
+                                  account_appsettings.PASSWORD_INPUT_RENDER_VALUE)
         kwargs['widget'] = forms.PasswordInput(render_value=render_value,
                                                attrs={'placeholder':
                                                       kwargs.get("label")})
@@ -109,15 +108,16 @@ class LoginForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super(LoginForm, self).__init__(*args, **kwargs)
-        if account_appsettings.AppSettings.AUTHENTICATION_METHOD == AppSettings.AuthenticationMethod.EMAIL:
+        if account_appsettings.AUTHENTICATION_METHOD ==\
+            account_appsettings.AuthenticationMethod.EMAIL:
             login_widget = forms.TextInput(attrs={'type': 'email',
                                                   'placeholder':
                                                   _('E-mail address'),
                                                   'autofocus': 'autofocus'})
             login_field = forms.EmailField(label=_("E-mail"),
                                            widget=login_widget)
-        elif account_appsettings.AppSettings.AUTHENTICATION_METHOD \
-                == AppSettings.AuthenticationMethod.USERNAME:
+        elif account_appsettings.AUTHENTICATION_METHOD \
+                == account_appsettings.AuthenticationMethod.USERNAME:
             login_widget = forms.TextInput(attrs={'placeholder':
                                                   _('Username'),
                                                   'autofocus': 'autofocus'})
@@ -126,8 +126,8 @@ class LoginForm(forms.Form):
                 widget=login_widget,
                 max_length=get_username_max_length())
         else:
-            assert account_appsettings.AppSettings.AUTHENTICATION_METHOD \
-                == AppSettings.AuthenticationMethod.USERNAME_EMAIL
+            assert account_appsettings.AUTHENTICATION_METHOD \
+                == account_appsettings.AuthenticationMethod.USERNAME_EMAIL
             login_widget = forms.TextInput(attrs={'placeholder':
                                                   _('Username or e-mail'),
                                                   'autofocus': 'autofocus'})
@@ -136,7 +136,7 @@ class LoginForm(forms.Form):
                                           widget=login_widget)
         self.fields["login"] = login_field
         set_form_field_order(self, ["login", "password", "remember"])
-        if account_appsettings.AppSettings.SESSION_REMEMBER is not None:
+        if account_appsettings.SESSION_REMEMBER is not None:
             del self.fields['remember']
 
     def user_credentials(self):
@@ -146,11 +146,12 @@ class LoginForm(forms.Form):
         """
         credentials = {}
         login = self.cleaned_data["login"]
-        if account_appsettings.AppSettings.AUTHENTICATION_METHOD == AppSettings.AuthenticationMethod.EMAIL:
+        if account_appsettings.AUTHENTICATION_METHOD == \
+            account_appsettings.AuthenticationMethod.EMAIL:
             credentials["email"] = login
         elif (
-                account_appsettings.AppSettings.AUTHENTICATION_METHOD ==
-               AppSettings.AuthenticationMethod.USERNAME):
+                account_appsettings.AUTHENTICATION_METHOD ==
+                account_appsettings.AuthenticationMethod.USERNAME):
             credentials["username"] = login
         else:
             if self._is_login_email(login):
@@ -182,26 +183,26 @@ class LoginForm(forms.Form):
         if user:
             self.user = user
         else:
-            auth_method = account_appsettings.AppSettings.AUTHENTICATION_METHOD
-            if auth_method == account_appsettings.AppSettings.AuthenticationMethod.USERNAME_EMAIL:
+            auth_method = account_appsettings.AUTHENTICATION_METHOD
+            if auth_method == account_appsettings.AuthenticationMethod.USERNAME_EMAIL:
                 login = self.cleaned_data['login']
                 if self._is_login_email(login):
-                    auth_method = account_appsettings.AppSettings.AuthenticationMethod.EMAIL
+                    auth_method = account_appsettings.AuthenticationMethod.EMAIL
                 else:
-                    auth_method = account_appsettings.AppSettings.AuthenticationMethod.USERNAME
+                    auth_method = account_appsettings.AuthenticationMethod.USERNAME
             raise forms.ValidationError(
                 self.error_messages['%s_password_mismatch' % auth_method])
         return self.cleaned_data
 
     def login(self, request, redirect_url=None):
         ret = perform_login(request, self.user,
-                            email_verification=account_appsettings.AppSettings.EMAIL_VERIFICATION,
+                            email_verification=account_appsettings.EMAIL_VERIFICATION,
                             redirect_url=redirect_url)
-        remember = account_appsettings.AppSettings.SESSION_REMEMBER
+        remember = account_appsettings.SESSION_REMEMBER
         if remember is None:
             remember = self.cleaned_data['remember']
         if remember:
-            request.session.set_expiry(account_appsettings.AppSettings.SESSION_COOKIE_AGE)
+            request.session.set_expiry(account_appsettings.SESSION_COOKIE_AGE)
         else:
             request.session.set_expiry(0)
         return ret
@@ -228,14 +229,14 @@ def _base_signup_form_class():
     - Given the above, how to put in a custom signup form? Which form
       would your custom form derive from, the local or the social one?
     """
-    if not account_appsettings.AppSettings.SIGNUP_FORM_CLASS:
+    if not account_appsettings.SIGNUP_FORM_CLASS:
         return _DummyCustomSignupForm
     try:
-        fc_module, fc_classname = account_appsettings.AppSettings.SIGNUP_FORM_CLASS.rsplit('.', 1)
+        fc_module, fc_classname = account_appsettings.SIGNUP_FORM_CLASS.rsplit('.', 1)
     except ValueError:
         raise exceptions.ImproperlyConfigured('%s does not point to a form'
                                               ' class'
-                                              % account_appsettings.AppSettings.SIGNUP_FORM_CLASS)
+                                              % account_appsettings.SIGNUP_FORM_CLASS)
     try:
         mod = import_module(fc_module)
     except ImportError as e:
@@ -260,7 +261,7 @@ def _base_signup_form_class():
 
 class BaseSignupForm(_base_signup_form_class()):
     username = forms.CharField(label=_("Username"),
-                               min_length=account_appsettings.AppSettings.USERNAME_MIN_LENGTH,
+                               min_length=account_appsettings.USERNAME_MIN_LENGTH,
                                widget=forms.TextInput(
                                    attrs={'placeholder':
                                           _('Username'),
@@ -271,9 +272,9 @@ class BaseSignupForm(_base_signup_form_class()):
 
     def __init__(self, *args, **kwargs):
         email_required = kwargs.pop('email_required',
-                                    account_appsettings.AppSettings.EMAIL_REQUIRED)
+                                    account_appsettings.EMAIL_REQUIRED)
         self.username_required = kwargs.pop('username_required',
-                                            account_appsettings.AppSettings.USERNAME_REQUIRED)
+                                            account_appsettings.USERNAME_REQUIRED)
         super(BaseSignupForm, self).__init__(*args, **kwargs)
         username_field = self.fields['username']
         username_field.max_length = get_username_max_length()
@@ -289,7 +290,7 @@ class BaseSignupForm(_base_signup_form_class()):
             'password1',
             'password2'  # ignored when not present
         ]
-        if account_appsettings.AppSettings.SIGNUP_EMAIL_ENTER_TWICE:
+        if account_appsettings.SIGNUP_EMAIL_ENTER_TWICE:
             self.fields["email2"] = forms.EmailField(
                 label=_("E-mail (again)"),
                 widget=forms.TextInput(
@@ -330,7 +331,7 @@ class BaseSignupForm(_base_signup_form_class()):
     def clean_email(self):
         value = self.cleaned_data['email']
         value = get_adapter().clean_email(value)
-        if value and account_appsettings.AppSettings.UNIQUE_EMAIL:
+        if value and account_appsettings.UNIQUE_EMAIL:
             value = self.validate_unique_email(value)
         return value
 
@@ -339,7 +340,7 @@ class BaseSignupForm(_base_signup_form_class()):
 
     def clean(self):
         cleaned_data = super(BaseSignupForm, self).clean()
-        if account_appsettings.AppSettings.SIGNUP_EMAIL_ENTER_TWICE:
+        if account_appsettings.SIGNUP_EMAIL_ENTER_TWICE:
             email = cleaned_data.get('email')
             email2 = cleaned_data.get('email2')
             if (email and email2) and email != email2:
@@ -365,7 +366,7 @@ class SignupForm(BaseSignupForm):
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
         self.fields['password1'] = PasswordField(label=_("Password"))
-        if account_appsettings.AppSettings.SIGNUP_PASSWORD_ENTER_TWICE:
+        if account_appsettings.SIGNUP_PASSWORD_ENTER_TWICE:
             self.fields['password2'] = PasswordField(
                 label=_("Password (again)"))
 
@@ -390,7 +391,7 @@ class SignupForm(BaseSignupForm):
             except forms.ValidationError as e:
                 self.add_error('password1', e)
 
-        if account_appsettings.AppSettings.SIGNUP_PASSWORD_ENTER_TWICE \
+        if account_appsettings.SIGNUP_PASSWORD_ENTER_TWICE \
                 and "password1" in self.cleaned_data \
                 and "password2" in self.cleaned_data:
             if self.cleaned_data["password1"] \
@@ -442,7 +443,7 @@ class AddEmailForm(UserForm):
 
         if on_this_account:
             raise forms.ValidationError(errors["this_account"])
-        if on_diff_account and account_appsettings.AppSettings.UNIQUE_EMAIL:
+        if on_diff_account and account_appsettings.UNIQUE_EMAIL:
             raise forms.ValidationError(errors["different_account"])
         return value
 
@@ -533,8 +534,8 @@ class ResetPasswordForm(forms.Form):
                        "password_reset_url": url,
                        "request": request}
 
-            if account_appsettings.AppSettings.AUTHENTICATION_METHOD \
-                    !=AppSettings.AuthenticationMethod.EMAIL:
+            if account_appsettings.AUTHENTICATION_METHOD \
+                    != account_appsettings.AuthenticationMethod.EMAIL:
                 context['username'] = user_username(user)
             get_adapter(request).send_mail(
                 'account/email/password_reset_key',
