@@ -132,7 +132,7 @@ templates. Templates are named as follows::
 
     account/email/email_confirmation_signup_subject.txt
     account/email/email_confirmation_signup_message.txt
-    
+
     account/email/email_confirmation_subject.txt
     account/email/email_confirmation_message.txt
 
@@ -140,7 +140,7 @@ In case you want to include an HTML representation, add an HTML
 template as follows::
 
     account/email/email_confirmation_signup_message.html
-    
+
     account/email/email_confirmation_message.html
 
 The project does not contain any HTML email templates out of the box.
@@ -161,15 +161,15 @@ following adapter methods:
 
 - ``allauth.account.adapter.DefaultAccountAdapter``:
 
-  - ``get_login_redirect_url(self, request)``
+  - ``get_login_redirect_re_pathself, request)``
 
-  - ``get_logout_redirect_url(self, request)``
+  - ``get_logout_redirect_re_pathself, request)``
 
-  - ``get_email_confirmation_redirect_url(self, request)``
+  - ``get_email_confirmation_redirect_re_pathself, request)``
 
 - ``allauth.socialaccount.adapter.DefaultSocialAccountAdapter``:
 
-  - ``get_connect_redirect_url(self, request, socialaccount)``
+  - ``get_connect_redirect_re_pathself, request, socialaccount)``
 
 For example, redirecting to ``/accounts/<username>/`` can be implemented as
 follows::
@@ -183,7 +183,7 @@ follows::
 
     class MyAccountAdapter(DefaultAccountAdapter):
 
-        def get_login_redirect_url(self, request):
+        def get_login_redirect_re_pathself, request):
             path = "/accounts/{username}/"
             return path.format(username=request.user.username)
 

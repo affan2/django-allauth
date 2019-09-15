@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.conf.urls import re_path
 
 from . import views
 
 
 urlpatterns = [
-    url('^openid/login/$', views.login, name="openid_login"),
-    url('^openid/callback/$', views.callback, name='openid_callback'),
+    re_path('^openid/login/$', views.login, name="openid_login"),
+    re_path('^openid/callback/$', views.callback, name='openid_callback'),
 ]
