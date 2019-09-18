@@ -4,7 +4,6 @@ from django.contrib.auth.backends import ModelBackend
 
 from ..utils import get_user_model
 from . import app_settings as account_appsettings
-from .app_settings import AppSettings
 from .utils import filter_users_by_email, filter_users_by_username
 
 from django.conf import settings
@@ -16,10 +15,10 @@ class AuthenticationBackend(ModelBackend):
 
     def authenticate(self, request, **credentials):
         ret = None
-        if account_appsettings.AppSettings.AUTHENTICATION_METHOD == AppSettings.AuthenticationMethod.EMAIL:
+        if account_appsettings.account_appsettings.AUTHENTICATION_METHOD == account_appsettings.AuthenticationMethod.EMAIL:
             ret = self._authenticate_by_email(**credentials)
-        elif account_appsettings.AppSettings.AUTHENTICATION_METHOD \
-                == AppSettings.AuthenticationMethod.USERNAME_EMAIL:
+        elif account_appsettings.account_appsettings.AUTHENTICATION_METHOD \
+                == account_appsettings.AuthenticationMethod.USERNAME_EMAIL:
             ret = self._authenticate_by_email(**credentials)
             if not ret:
                 ret = self._authenticate_by_username(**credentials)
@@ -28,7 +27,7 @@ class AuthenticationBackend(ModelBackend):
         return ret
 
     def _authenticate_by_username(self, **credentials):
-        username_field = account_appsettings.AppSettings.USER_MODEL_USERNAME_FIELD
+        username_field = account_appsettings.account_appsettings.USER_MODEL_USERNAME_FIELD
         username = credentials.get('username')
         password = credentials.get('password')
 
