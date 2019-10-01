@@ -10,6 +10,8 @@ from django.core import exceptions, validators
 from django.urls import reverse
 from django.utils.translation import pgettext
 
+from dal import autocomplete
+
 from allauth.compat import ugettext, ugettext_lazy as _
 
 from ..utils import (
@@ -593,3 +595,14 @@ class UserTokenForm(forms.Form):
             raise forms.ValidationError(self.error_messages['token_invalid'])
 
         return cleaned_data
+
+
+class EmailAddressAdminForm(forms.ModelForm):
+    class Meta:
+        model = EmailAddress
+        widgets = {
+            'user': autocomplete.ModelSelect2(
+                url='user-autocomplete',
+            ),
+        }
+        exclude = ()

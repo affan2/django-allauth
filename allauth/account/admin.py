@@ -3,9 +3,12 @@ from django.contrib import admin
 from . import app_settings as account_appsettings
 from .adapter import get_adapter
 from .models import EmailAddress, EmailConfirmation
+from .forms import EmailAddressAdminForm
 
 
 class EmailAddressAdmin(admin.ModelAdmin):
+    model = EmailAddress
+    form = EmailAddressAdminForm
     list_display = ('email', 'user', 'primary', 'verified')
     list_filter = ('primary', 'verified')
     search_fields = []
