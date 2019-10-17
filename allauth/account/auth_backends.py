@@ -3,10 +3,11 @@ from threading import local
 from django.contrib.auth.backends import ModelBackend
 
 from ..utils import get_user_model
-from . import app_settings as account_appsettings
-from .utils import filter_users_by_email, filter_users_by_username
 
-from django.conf import settings
+from allauth.account import app_settings
+from .app_settings import AuthenticationMethod
+
+from .utils import filter_users_by_email, filter_users_by_username
 
 _stash = local()
 
@@ -15,10 +16,10 @@ class AuthenticationBackend(ModelBackend):
 
     def authenticate(self, request, **credentials):
         ret = None
-        if account_appsettings.account_appsettings.AUTHENTICATION_METHOD == account_appsettings.AuthenticationMethod.EMAIL:
+        if app_settings.AUTHENTICATION_METHOD == AuthenticationMethod.EMAIL:
             ret = self._authenticate_by_email(**credentials)
-        elif account_appsettings.account_appsettings.AUTHENTICATION_METHOD \
-                == account_appsettings.AuthenticationMethod.USERNAME_EMAIL:
+        elif app_settings.AUTHENTICATION_METHOD \
+            == AuthenticationMethod.USERNAME_EMAIL:
             ret = self._authenticate_by_email(**credentials)
             if not ret:
                 ret = self._authenticate_by_username(**credentials)
@@ -27,9 +28,11 @@ class AuthenticationBackend(ModelBackend):
         return ret
 
     def _authenticate_by_username(self, **credentials):
-        username_field = account_appsettings.account_appsettings.USER_MODEL_USERNAME_FIELD
+        username_field = app_settings.USER_MODEL_USERNAME_FIELD
         username = credentials.get('username')
         password = credentials.get('password')
+
+        User = get_user_model()
 
         if not username_field or username is None or password is None:
             return None
@@ -38,7 +41,7 @@ class AuthenticationBackend(ModelBackend):
             user = filter_users_by_username(username).get()
             if self._check_password(user, password):
                 return user
-        except get_user_model().DoesNotExist:
+        except User.DoesNotExist:
             return None
 
     def _authenticate_by_email(self, **credentials):
