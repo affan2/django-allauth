@@ -5,8 +5,6 @@ import warnings
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth import (
     authenticate,
@@ -26,7 +24,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
-from ..compat import force_str, ugettext_lazy as _
+from allauth.compat import force_str, ugettext_lazy as _
 
 from ..utils import (
     build_absolute_uri,
@@ -411,8 +409,9 @@ class DefaultAccountAdapter(object):
 
     def get_user_search_fields(self):
         user = get_user_model()()
-        return [a for a in [app_settings.USER_MODEL_USERNAME_FIELD,
-                            'first_name', 'last_name', 'email'] if a and hasattr(user, a)]
+        return filter(lambda a: a and hasattr(user, a),
+                      [app_settings.USER_MODEL_USERNAME_FIELD,
+                       'first_name', 'last_name', 'email'])
 
     def is_safe_url(self, url):
         from django.utils.http import is_safe_url
@@ -485,7 +484,7 @@ class DefaultAccountAdapter(object):
 
     def authenticate(self, request, **credentials):
         """Only authenticates, does not actually login. See `login`"""
-        from .auth_backends import AuthenticationBackend
+        from allauth.account.auth_backends import AuthenticationBackend
 
         self.pre_authenticate(request, **credentials)
         AuthenticationBackend.unstash_authenticated_user()

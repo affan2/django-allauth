@@ -15,7 +15,7 @@ from django.views.generic.edit import FormView
 
 from ..exceptions import ImmediateHttpResponse
 from ..utils import get_form_class, get_request_param
-from . import app_settings as account_appsettings, signals
+from . import app_settings, signals
 from .adapter import get_adapter
 from .forms import (
     AddEmailForm,
@@ -69,7 +69,7 @@ class RedirectAuthenticatedUserMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and \
-                account_appsettings.AUTHENTICATED_LOGIN_REDIRECTS:
+                app_settings.AUTHENTICATED_LOGIN_REDIRECTS:
             redirect_to = self.get_authenticated_redirect_url()
             response = HttpResponseRedirect(redirect_to)
             return _ajax_response(request, response)
@@ -128,7 +128,7 @@ class LoginView(RedirectAuthenticatedUserMixin,
                 AjaxCapableProcessFormViewMixin,
                 FormView):
     form_class = LoginForm
-    template_name = "account/login." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/login." + app_settings.TEMPLATE_EXTENSION
     success_url = None
     redirect_field_name = "next"
 
@@ -142,7 +142,7 @@ class LoginView(RedirectAuthenticatedUserMixin,
         return kwargs
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS, 'login', self.form_class)
+        return get_form_class(app_settings.FORMS, 'login', self.form_class)
 
     def form_valid(self, form):
         success_url = self.get_success_url()
@@ -179,7 +179,7 @@ login = LoginView.as_view()
 
 class CloseableSignupMixin(object):
     template_name_signup_closed = (
-        "account/signup_closed." + account_appsettings.TEMPLATE_EXTENSION)
+        "account/signup_closed." + app_settings.TEMPLATE_EXTENSION)
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -204,7 +204,7 @@ class CloseableSignupMixin(object):
 
 class SignupView(RedirectAuthenticatedUserMixin, CloseableSignupMixin,
                  AjaxCapableProcessFormViewMixin, FormView):
-    template_name = "account/signup." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/signup." + app_settings.TEMPLATE_EXTENSION
     form_class = SignupForm
     redirect_field_name = "next"
     success_url = None
@@ -214,7 +214,7 @@ class SignupView(RedirectAuthenticatedUserMixin, CloseableSignupMixin,
         return super(SignupView, self).dispatch(request, *args, **kwargs)
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS, 'signup', self.form_class)
+        return get_form_class(app_settings.FORMS, 'signup', self.form_class)
 
     def get_success_url(self):
         # Explicitly passed ?next= URL takes precedence
@@ -231,7 +231,7 @@ class SignupView(RedirectAuthenticatedUserMixin, CloseableSignupMixin,
         try:
             return complete_signup(
                 self.request, self.user,
-                account_appsettings.EMAIL_VERIFICATION,
+                app_settings.EMAIL_VERIFICATION,
                 self.get_success_url())
         except ImmediateHttpResponse as e:
             return e.response
@@ -242,7 +242,7 @@ class SignupView(RedirectAuthenticatedUserMixin, CloseableSignupMixin,
         email = self.request.session.get('account_verified_email')
         if email:
             email_keys = ['email']
-            if account_appsettings.SIGNUP_EMAIL_ENTER_TWICE:
+            if app_settings.SIGNUP_EMAIL_ENTER_TWICE:
                 email_keys.append('email2')
             for email_key in email_keys:
                 form.fields[email_key].initial = email
@@ -263,12 +263,12 @@ signup = SignupView.as_view()
 
 class ConfirmEmailView(TemplateResponseMixin, View):
 
-    template_name = "account/email_confirm." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/email_confirm." + app_settings.TEMPLATE_EXTENSION
 
     def get(self, *args, **kwargs):
         try:
             self.object = self.get_object()
-            if account_appsettings.CONFIRM_EMAIL_ON_GET:
+            if app_settings.CONFIRM_EMAIL_ON_GET:
                 return self.post(*args, **kwargs)
         except Http404:
             self.object = None
@@ -283,7 +283,7 @@ class ConfirmEmailView(TemplateResponseMixin, View):
             messages.SUCCESS,
             'account/messages/email_confirmed.txt',
             {'email': confirmation.email_address.email})
-        if account_appsettings.LOGIN_ON_EMAIL_CONFIRMATION:
+        if app_settings.LOGIN_ON_EMAIL_CONFIRMATION:
             resp = self.login_on_confirm(confirmation)
             if resp is not None:
                 return resp
@@ -330,7 +330,7 @@ class ConfirmEmailView(TemplateResponseMixin, View):
         if user_pk == user.pk and self.request.user.is_anonymous:
             return perform_login(self.request,
                                  user,
-                                 account_appsettings.EmailVerificationMethod.NONE,
+                                 app_settings.EmailVerificationMethod.NONE,
                                  # passed as callable, as this method
                                  # depends on the authenticated state
                                  redirect_url=self.get_redirect_url)
@@ -370,12 +370,12 @@ confirm_email = ConfirmEmailView.as_view()
 
 
 class EmailView(AjaxCapableProcessFormViewMixin, FormView):
-    template_name = "account/email." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/email." + app_settings.TEMPLATE_EXTENSION
     form_class = AddEmailForm
     success_url = reverse_lazy('account_email')
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS, 'add_email', self.form_class)
+        return get_form_class(app_settings.FORMS, 'add_email', self.form_class)
 
     def dispatch(self, request, *args, **kwargs):
         sync_user_email_addresses(request.user)
@@ -534,12 +534,12 @@ email = login_required(EmailView.as_view())
 
 class PasswordChangeView(AjaxCapableProcessFormViewMixin, FormView):
     template_name = (
-        "account/password_change." + account_appsettings.TEMPLATE_EXTENSION)
+        "account/password_change." + app_settings.TEMPLATE_EXTENSION)
     form_class = ChangePasswordForm
     success_url = reverse_lazy("account_change_password")
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS,
+        return get_form_class(app_settings.FORMS,
                               'change_password',
                               self.form_class)
 
@@ -583,12 +583,12 @@ password_change = login_required(PasswordChangeView.as_view())
 
 
 class PasswordSetView(AjaxCapableProcessFormViewMixin, FormView):
-    template_name = "account/password_set." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/password_set." + app_settings.TEMPLATE_EXTENSION
     form_class = SetPasswordForm
     success_url = reverse_lazy("account_set_password")
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS,
+        return get_form_class(app_settings.FORMS,
                               'set_password',
                               self.form_class)
 
@@ -630,13 +630,13 @@ password_set = login_required(PasswordSetView.as_view())
 
 
 class PasswordResetView(AjaxCapableProcessFormViewMixin, FormView):
-    template_name = "account/password_reset." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/password_reset." + app_settings.TEMPLATE_EXTENSION
     form_class = ResetPasswordForm
     success_url = reverse_lazy("account_reset_password_done")
     redirect_field_name = "next"
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS,
+        return get_form_class(app_settings.FORMS,
                               'reset_password',
                               self.form_class)
 
@@ -661,7 +661,7 @@ password_reset = PasswordResetView.as_view()
 
 class PasswordResetDoneView(TemplateView):
     template_name = (
-        "account/password_reset_done." + account_appsettings.TEMPLATE_EXTENSION)
+        "account/password_reset_done." + app_settings.TEMPLATE_EXTENSION)
 
 
 password_reset_done = PasswordResetDoneView.as_view()
@@ -669,12 +669,12 @@ password_reset_done = PasswordResetDoneView.as_view()
 
 class PasswordResetFromKeyView(AjaxCapableProcessFormViewMixin, FormView):
     template_name = (
-        "account/password_reset_from_key." + account_appsettings.TEMPLATE_EXTENSION)
+        "account/password_reset_from_key." + app_settings.TEMPLATE_EXTENSION)
     form_class = ResetPasswordKeyForm
     success_url = reverse_lazy("account_reset_password_from_key_done")
 
     def get_form_class(self):
-        return get_form_class(account_appsettings.FORMS,
+        return get_form_class(app_settings.FORMS,
                               'reset_password_from_key',
                               self.form_class)
 
@@ -736,10 +736,10 @@ class PasswordResetFromKeyView(AjaxCapableProcessFormViewMixin, FormView):
                                     request=self.request,
                                     user=self.reset_user)
 
-        if account_appsettings.LOGIN_ON_PASSWORD_RESET:
+        if app_settings.LOGIN_ON_PASSWORD_RESET:
             return perform_login(
                 self.request, self.reset_user,
-                email_verification=account_appsettings.EMAIL_VERIFICATION)
+                email_verification=app_settings.EMAIL_VERIFICATION)
 
         return super(PasswordResetFromKeyView, self).form_valid(form)
 
@@ -750,7 +750,7 @@ password_reset_from_key = PasswordResetFromKeyView.as_view()
 class PasswordResetFromKeyDoneView(TemplateView):
     template_name = (
         "account/password_reset_from_key_done." +
-        account_appsettings.TEMPLATE_EXTENSION)
+        app_settings.TEMPLATE_EXTENSION)
 
 
 password_reset_from_key_done = PasswordResetFromKeyDoneView.as_view()
@@ -758,11 +758,11 @@ password_reset_from_key_done = PasswordResetFromKeyDoneView.as_view()
 
 class LogoutView(TemplateResponseMixin, View):
 
-    template_name = "account/logout." + account_appsettings.TEMPLATE_EXTENSION
+    template_name = "account/logout." + app_settings.TEMPLATE_EXTENSION
     redirect_field_name = "next"
 
     def get(self, *args, **kwargs):
-        if account_appsettings.LOGOUT_ON_GET:
+        if app_settings.LOGOUT_ON_GET:
             return self.post(*args, **kwargs)
         if not self.request.user.is_authenticated:
             response = redirect(self.get_redirect_url())
@@ -809,7 +809,7 @@ logout = LogoutView.as_view()
 
 class AccountInactiveView(TemplateView):
     template_name = (
-        'account/account_inactive.' + account_appsettings.TEMPLATE_EXTENSION)
+        'account/account_inactive.' + app_settings.TEMPLATE_EXTENSION)
 
 
 account_inactive = AccountInactiveView.as_view()
@@ -817,7 +817,7 @@ account_inactive = AccountInactiveView.as_view()
 
 class EmailVerificationSentView(TemplateView):
     template_name = (
-        'account/verification_sent.' + account_appsettings.TEMPLATE_EXTENSION)
+        'account/verification_sent.' + app_settings.TEMPLATE_EXTENSION)
 
 
 email_verification_sent = EmailVerificationSentView.as_view()

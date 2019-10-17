@@ -1,5 +1,5 @@
 from allauth.account.models import EmailAddress
-from allauth.socialaccount.app_settings import AppSettings
+from allauth.socialaccount.app_settings import QUERY_EMAIL
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 
@@ -23,7 +23,7 @@ class DisqusProvider(OAuth2Provider):
 
     def get_default_scope(self):
         scope = ['read']
-        if AppSettings.QUERY_EMAIL:
+        if QUERY_EMAIL:
             scope += ['email']
         return scope
 

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import datetime
 
 from django.core import signing
@@ -7,7 +9,7 @@ from django.utils.crypto import get_random_string
 
 from allauth.compat import python_2_unicode_compatible, ugettext_lazy as _
 
-from .. import app_settings as allauth_appsettings
+from .. import app_settings as allauth_app_settings
 from . import app_settings, signals
 from .adapter import get_adapter
 from .managers import EmailAddressManager, EmailConfirmationManager
@@ -16,7 +18,8 @@ from .utils import user_email
 
 @python_2_unicode_compatible
 class EmailAddress(models.Model):
-    user = models.ForeignKey(allauth_appsettings.USER_MODEL,
+
+    user = models.ForeignKey(allauth_app_settings.USER_MODEL,
                              verbose_name=_('user'),
                              on_delete=models.CASCADE)
     email = models.EmailField(unique=app_settings.UNIQUE_EMAIL,
@@ -99,7 +102,7 @@ class EmailConfirmation(models.Model):
 
     def key_expired(self):
         expiration_date = self.sent \
-            + datetime.timedelta(days=app_settings.AppSettings
+            + datetime.timedelta(days=app_settings
                                  .EMAIL_CONFIRMATION_EXPIRE_DAYS)
         return expiration_date <= timezone.now()
     key_expired.boolean = True

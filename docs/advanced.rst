@@ -161,15 +161,15 @@ following adapter methods:
 
 - ``allauth.account.adapter.DefaultAccountAdapter``:
 
-  - ``get_login_redirect_re_pathself, request)``
+  - ``get_login_redirect_url(self, request)``
 
-  - ``get_logout_redirect_re_pathself, request)``
+  - ``get_logout_redirect_url(self, request)``
 
-  - ``get_email_confirmation_redirect_re_pathself, request)``
+  - ``get_email_confirmation_redirect_url(self, request)``
 
 - ``allauth.socialaccount.adapter.DefaultSocialAccountAdapter``:
 
-  - ``get_connect_redirect_re_pathself, request, socialaccount)``
+  - ``get_connect_redirect_url(self, request, socialaccount)``
 
 For example, redirecting to ``/accounts/<username>/`` can be implemented as
 follows::
@@ -183,7 +183,7 @@ follows::
 
     class MyAccountAdapter(DefaultAccountAdapter):
 
-        def get_login_redirect_re_pathself, request):
+        def get_login_redirect_url(self, request):
             path = "/accounts/{username}/"
             return path.format(username=request.user.username)
 

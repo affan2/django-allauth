@@ -1,4 +1,4 @@
-
+from __future__ import unicode_literals
 
 import requests
 
@@ -42,14 +42,14 @@ class AzureOAuth2Adapter(OAuth2Adapter):
 #
 # example of what's returned (in python format)
 #
-# {'displayName': 'John Smith', 'mobilePhone': None,
-#  'preferredLanguage': 'en-US', 'jobTitle': 'Director',
-#  'userPrincipalName': 'john@smith.com',
-#  '@odata.context':
-#  'https://graph.microsoft.com/v1.0/$metadata#users/$entity',
-#  'officeLocation': 'Paris', 'businessPhones': [],
-#  'mail': 'john@smith.com', 'surname': 'Smith',
-#  'givenName': 'John', 'id': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
+# {'displayName':'John Smith','mobilePhone': None,
+# 'preferredLanguage':'en-US','jobTitle':'Director',
+# 'userPrincipalName':'john@smith.com',
+# '@odata.context':
+# 'https://graph.microsoft.com/v1.0/$metadata#users/$entity',
+# 'officeLocation':'Paris','businessPhones': [],
+# 'mail':'john@smith.com','surname':'Smith',
+# 'givenName':'John','id':'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
 
         profile_data = resp.json()
         extra_data.update(profile_data)

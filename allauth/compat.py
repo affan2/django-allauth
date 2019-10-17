@@ -13,9 +13,21 @@ except ImportError:
         string_types = (str,)
 
 
-from collections import UserDict
-from urllib.parse import parse_qsl, parse_qs, urlparse, urlunparse, urljoin
-from django.utils.encoding import python_2_unicode_compatible
+try:
+    from collections import UserDict
+except ImportError:
+    from UserDict import UserDict  # noqa
+
+try:
+    from urllib.parse import parse_qsl, parse_qs, urlparse, urlunparse, urljoin
+except ImportError:
+    from urlparse import parse_qsl, parse_qs, urlparse, urlunparse, urljoin  # noqa
+
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    def python_2_unicode_compatible(c):
+        return c
 
 if six.PY2:
     from django.utils.encoding import force_text as force_str

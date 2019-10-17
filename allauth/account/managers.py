@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from . import app_settings as account_appsettings
+from . import app_settings
 
 
 class EmailAddressManager(models.Manager):
@@ -68,7 +68,7 @@ class EmailConfirmationManager(models.Manager):
 
     def expired_q(self):
         sent_threshold = timezone.now() \
-            - timedelta(days=account_appsettings.AppSettings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
+            - timedelta(days=app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
         return Q(sent__lt=sent_threshold)
 
     def delete_expired_confirmations(self):

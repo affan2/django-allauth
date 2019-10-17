@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 
@@ -5,6 +7,7 @@ from allauth.compat import ugettext_lazy as _
 
 from ..account import app_settings as account_settings
 from ..account.adapter import get_adapter as get_account_adapter
+from ..account.app_settings import EmailVerificationMethod
 from ..account.models import EmailAddress
 from ..account.utils import user_email, user_field, user_username
 from ..utils import (
@@ -130,7 +133,7 @@ class DefaultSocialAccountAdapter(object):
                                         " up."))
             # No email address, no password reset
             if app_settings.EMAIL_VERIFICATION \
-                    == app_settings.EmailVerificationMethod.MANDATORY:
+                    == EmailVerificationMethod.MANDATORY:
                 if EmailAddress.objects.filter(user=account.user,
                                                verified=True).count() == 0:
                     raise ValidationError(_("Your account has no verified"

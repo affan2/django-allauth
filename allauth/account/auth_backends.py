@@ -3,11 +3,10 @@ from threading import local
 from django.contrib.auth.backends import ModelBackend
 
 from ..utils import get_user_model
-
-from allauth.account import app_settings
+from . import app_settings
 from .app_settings import AuthenticationMethod
-
 from .utils import filter_users_by_email, filter_users_by_username
+
 
 _stash = local()
 
@@ -19,7 +18,7 @@ class AuthenticationBackend(ModelBackend):
         if app_settings.AUTHENTICATION_METHOD == AuthenticationMethod.EMAIL:
             ret = self._authenticate_by_email(**credentials)
         elif app_settings.AUTHENTICATION_METHOD \
-            == AuthenticationMethod.USERNAME_EMAIL:
+                == AuthenticationMethod.USERNAME_EMAIL:
             ret = self._authenticate_by_email(**credentials)
             if not ret:
                 ret = self._authenticate_by_username(**credentials)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from . import app_settings as account_appsettings
+from . import app_settings
 from .adapter import get_adapter
 from .models import EmailAddress, EmailConfirmation
 from .forms import EmailAddressAdminForm
@@ -25,6 +25,6 @@ class EmailConfirmationAdmin(admin.ModelAdmin):
     raw_id_fields = ('email_address',)
 
 
-if not account_appsettings.EMAIL_CONFIRMATION_HMAC:
+if not app_settings.EMAIL_CONFIRMATION_HMAC:
     admin.site.register(EmailConfirmation, EmailConfirmationAdmin)
 admin.site.register(EmailAddress, EmailAddressAdmin)

@@ -22,6 +22,7 @@ from ..utils import (
 )
 from . import app_settings, signals
 from .adapter import get_adapter
+from .app_settings import EmailVerificationMethod
 
 
 def get_next_redirect_url(request, redirect_field_name="next"):
@@ -82,8 +83,9 @@ def user_field(user, field, *args):
     """
     if not field:
         return
+    User = get_user_model()
     try:
-        field_meta = get_user_model()._meta.get_field(field)
+        field_meta = User._meta.get_field(field)
         max_length = field_meta.max_length
     except FieldDoesNotExist:
         if not hasattr(user, field):
@@ -129,15 +131,15 @@ def perform_login(request, user, email_verification,
         return adapter.respond_user_inactive(request, user)
 
     from .models import EmailAddress
-    has_verified_email = EmailAddress.objects.filter(user=user, verified=True).exists()
-
-    if email_verification == app_settings.AppSettings.EmailVerificationMethod.NONE:
+    has_verified_email = EmailAddress.objects.filter(user=user,
+                                                     verified=True).exists()
+    if email_verification == EmailVerificationMethod.NONE:
         pass
-    elif email_verification == app_settings.AppSettings.EmailVerificationMethod.OPTIONAL:
+    elif email_verification == EmailVerificationMethod.OPTIONAL:
         # In case of OPTIONAL verification: send on signup.
         if not has_verified_email and signup:
             send_email_confirmation(request, user, signup=signup)
-    elif email_verification == app_settings.AppSettings.EmailVerificationMethod.MANDATORY:
+    elif email_verification == EmailVerificationMethod.MANDATORY:
         if not has_verified_email:
             send_email_confirmation(request, user, signup=signup)
             return adapter.respond_email_verification_sent(
@@ -229,12 +231,12 @@ def cleanup_email_addresses(request, addresses):
         primary_address = primary_addresses[0]
     elif e2a:
         # Pick the first
-        primary_address = list(e2a.keys())[0]
+        primary_address = e2a.keys()[0]
     else:
         # Empty
         primary_address = None
     # There can only be one primary
-    for a in list(e2a.values()):
+    for a in e2a.values():
         a.primary = primary_address.email.lower() == a.email.lower()
     return list(e2a.values()), primary_address
 
@@ -376,11 +378,12 @@ def filter_users_by_email(email):
     together avoiding SQL joins and deduplicate.
     """
     from .models import EmailAddress
+    User = get_user_model()
     mails = EmailAddress.objects.filter(email__iexact=email)
     users = [e.user for e in mails.prefetch_related('user')]
     if app_settings.USER_MODEL_EMAIL_FIELD:
         q_dict = {app_settings.USER_MODEL_EMAIL_FIELD + '__iexact': email}
-        users += list(get_user_model().objects.filter(**q_dict))
+        users += list(User.objects.filter(**q_dict))
     return list(set(users))
 
 
@@ -396,7 +399,8 @@ def user_pk_to_url_str(user):
     """
     This should return a string.
     """
-    if issubclass(type(get_user_model()._meta.pk), models.UUIDField):
+    User = get_user_model()
+    if issubclass(type(User._meta.pk), models.UUIDField):
         if isinstance(user.pk, six.string_types):
             return user.pk
         return user.pk.hex
@@ -408,12 +412,13 @@ def user_pk_to_url_str(user):
 
 
 def url_str_to_user_pk(s):
+    User = get_user_model()
     # TODO: Ugh, isn't there a cleaner way to determine whether or not
     # the PK is a str-like field?
-    if getattr(get_user_model()._meta.pk, 'remote_field', None):
-        pk_field = get_user_model()._meta.pk.remote_field.to._meta.pk
+    if getattr(User._meta.pk, 'remote_field', None):
+        pk_field = User._meta.pk.remote_field.to._meta.pk
     else:
-        pk_field = get_user_model()._meta.pk
+        pk_field = User._meta.pk
     if issubclass(type(pk_field), models.UUIDField):
         return pk_field.to_python(s)
     try:

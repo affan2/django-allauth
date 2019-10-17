@@ -1,4 +1,5 @@
 class AppSettings(object):
+
     class AuthenticationMethod:
         USERNAME = 'username'
         EMAIL = 'email'

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import json
 import uuid
 from datetime import timedelta
@@ -516,7 +518,7 @@ class AccountTests(TestCase):
                                     email="user@example.com",
                                     primary=True,
                                     verified=False)
-        for i in list(range(5)):
+        for i in range(5):
             is_valid_attempt = (i == 4)
             is_locked = (i >= 3)
             resp = self.client.post(
@@ -785,7 +787,8 @@ class AccountTests(TestCase):
 class EmailFormTests(TestCase):
 
     def setUp(self):
-        self.user = get_user_model().objects.create(username='john',
+        User = get_user_model()
+        self.user = User.objects.create(username='john',
                                         email="john1@example.org")
         self.user.set_password('doe')
         self.user.save()
