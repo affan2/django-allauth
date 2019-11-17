@@ -27,7 +27,7 @@ class MockedResponse(object):
             headers = {}
 
         self.status_code = status_code
-        self.content = content.encode('utf8')
+        self.content = content
         self.headers = headers
 
     def json(self):

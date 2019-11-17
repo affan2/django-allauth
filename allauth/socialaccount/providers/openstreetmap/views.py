@@ -19,7 +19,7 @@ class OpenStreetMapAPI(OAuth):
     def get_user_info(self):
         raw_xml = self.query(self.url)
         if not six.PY3:
-            raw_xml = raw_xml.encode('utf8')
+            raw_xml = raw_xml
         try:
             user_element = ElementTree.fromstring(raw_xml).find('user')
             user_info = user_element.attrib

@@ -23,7 +23,7 @@ class LinkedInAPI(OAuth):
         url = self.url + ':(%s)' % ','.join(fields)
         raw_xml = self.query(url)
         if not six.PY3:
-            raw_xml = raw_xml.encode('utf8')
+            raw_xml = raw_xml
         try:
             return self.to_dict(ElementTree.fromstring(raw_xml))
         except (ExpatError, KeyError, IndexError):
