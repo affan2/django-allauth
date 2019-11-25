@@ -1,5 +1,3 @@
-from django.conf import settings
-
 import warnings
 from importlib import import_module
 
@@ -600,9 +598,4 @@ class UserTokenForm(forms.Form):
 class EmailAddressAdminForm(forms.ModelForm):
     class Meta:
         model = EmailAddress
-        widgets = {
-            'user': autocomplete.ModelSelect2(
-                url='user-autocomplete',
-            ),
-        }
         exclude = ()

@@ -13,6 +13,7 @@ class EmailAddressAdmin(admin.ModelAdmin):
     list_filter = ('primary', 'verified')
     search_fields = []
     raw_id_fields = ('user',)
+    autocomplete_fields = ['user']
 
     def get_search_fields(self, request):
         base_fields = get_adapter(request).get_user_search_fields()
